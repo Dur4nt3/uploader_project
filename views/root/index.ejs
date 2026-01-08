@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/stylesheets/reset.css">
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+    <title>Home</title>
+</head>
+<body>
+    <header class="home-header">
+        <h1>Uploader</h1>
+        <h2>A simple website to store images</h2>
+    </header>
+
+    <main class="home-main">
+        <% if (locals.authenticated) { %>
+            <h1>User authenticated, show folders</h1>
+        <% } else { %>
+            <div class="login-notice">
+                <div class="folder-icon-cont">
+                    <img src="/media/icons/folder-blue.svg">
+                </div>
+                <h2 class="notice-heading">Host, view, and share your images</h2>
+                <p class="notice-subtext">
+                    Uploader is a lightweight image hosting app that lets you create folders, upload images, and access them from anywhere.
+                </p>
+
+                <div class="action-links-cont">
+                    <a href="/signup" class="signup-link">
+                        <img src="/media/icons/create-account.svg">
+                        Signup
+                    </a>
+
+                    <a href="/login" class="login-link">
+                        <img src="/media/icons/login.svg">
+                        Login
+                    </a>
+                </div>
+            </div>
+        <% } %>
+    </main>
+
+    <footer>
+        <div class="footer-links-cont">
+            <a href="/help">
+                <img src="/media/icons/help.svg" alt="help page">
+            </a>
+        </div>
+    </footer>
+</body>
+</html>

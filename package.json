@@ -1,0 +1,43 @@
+{
+    "name": "uploader_project",
+    "version": "1.0.0",
+    "description": "File Uploader | The Odin Project | NodeJS",
+    "main": "index.js",
+    "scripts": {},
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Dur4nt3/uploader_project.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "module",
+    "bugs": {
+        "url": "https://github.com/Dur4nt3/uploader_project/issues"
+    },
+    "homepage": "https://github.com/Dur4nt3/uploader_project#readme",
+    "dependencies": {
+        "@prisma/adapter-pg": "^7.2.0",
+        "@prisma/client": "^7.2.0",
+        "@quixo3/prisma-session-store": "^3.1.19",
+        "bcryptjs": "^3.0.3",
+        "dotenv": "^17.2.3",
+        "ejs": "^3.1.10",
+        "express": "^5.2.1",
+        "express-session": "^1.18.2",
+        "express-validator": "^7.3.1",
+        "passport": "^0.7.0",
+        "passport-local": "^1.0.0",
+        "pg": "^8.16.3"
+    },
+    "devDependencies": {
+        "@types/express": "^5.0.6",
+        "@types/express-session": "^1.18.2",
+        "@types/node": "^25.0.3",
+        "@types/passport": "^1.0.17",
+        "@types/pg": "^8.16.0",
+        "prisma": "^7.2.0",
+        "tsx": "^4.21.0",
+        "typescript": "^5.9.3"
+    }
+}

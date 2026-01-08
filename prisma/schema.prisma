@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  userId   Int    @id @default(autoincrement())
+  username String @unique
+  name     String
+  password String
+
+  folders Folder[]
+}
+
+model Folder {
+  folderId    Int     @id @default(autoincrement())
+  name        String
+  description String?
+
+  visibilityId Int
+  visibility   Visibility @relation(fields: [visibilityId], references: [visibilityId])
+
+  userId Int
+  owner  User @relation(fields: [userId], references: [userId])
+
+  files File[]
+}
+
+model File {
+  fileId      Int     @id @default(autoincrement())
+  name        String
+  description String?
+
+  visibilityId Int
+  visibility   Visibility @relation(fields: [visibilityId], references: [visibilityId])
+
+  folderId Int
+  folder   Folder @relation(fields: [folderId], references: [folderId])
+}
+
+model Visibility {
+  visibilityId Int     @id @default(autoincrement())
+  name         String  @unique
+  description  String?
+
+  folders Folder[]
+
+  files File[]
+}
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String
+  expiresAt DateTime
+}
