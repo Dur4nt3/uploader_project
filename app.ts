@@ -47,7 +47,11 @@ app.use(passport.session());
 app.use('/', indexRouter);
 
 // Error middleware
-app.use((req, res) => res.render('error-page'));
+app.use((req, res) => res.render('error-page', {
+    errorTitle: 'Not Found',
+    errorCode: '404',
+    errorDesc: 'Could not find the requested page.'
+}));
 
 const appPort = process.env.PORT || 8080;
 

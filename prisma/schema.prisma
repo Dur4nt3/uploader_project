@@ -34,6 +34,7 @@ model File {
   fileId      Int     @id @default(autoincrement())
   name        String
   description String?
+  creationDate DateTime @default(now())
 
   visibilityId Int
   visibility   Visibility @relation(fields: [visibilityId], references: [visibilityId])
