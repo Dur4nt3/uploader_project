@@ -14,6 +14,63 @@
     <title>Signup</title>
 </head>
 <body>
-    <h1>Temp Signup Page</h1>
+    <header class="home-header">
+        <h1>Signup</h1>
+        <h2>Create your account</h2>
+    </header>
+
+    <div class="signup-main">
+        <form action="/signup" method="POST" class="signup-form app-form">
+            <div class="form-row">
+                <% if (locals.errors) { %>
+                    <div class="error-cont">
+                        <img src="/media/icons/alert.svg">
+                        <p class="error-notice-text"><%= errors[0].msg%></p>
+                    </div>
+                <% } %>
+
+                <label for="username">Username</label>
+                <input type="text" name="username" id="username" value="<%= locals.username !== undefined ? locals.username : '' %>">
+                <% if (locals.usernameErrors ) { %>
+                    <%- include("../partials/inline-errors.ejs", { errors: locals.usernameErrors }) %>
+                <% } %>
+            </div>
+
+            <div class="form-row">
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name" value="<%= locals.name !== undefined ? locals.name : '' %>">
+                <% if (locals.nameErrors ) { %>
+                    <%- include("../partials/inline-errors.ejs", { errors: locals.nameErrors }) %>
+                <% } %>
+            </div>
+            
+            <div class="form-row">
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password">
+                <% if (locals.passwordErrors ) { %>
+                    <%- include("../partials/inline-errors.ejs", { errors: locals.passwordErrors }) %>
+                <% } %>
+            </div>
+
+            <div class="form-row">
+                <label for="cpassword">Confirm Password</label>
+                <input type="password" name="cpassword" id="cpassword">
+                <% if (locals.cPasswordErrors ) { %>
+                    <%- include("../partials/inline-errors.ejs", { errors: locals.cPasswordErrors }) %>
+                <% } %>
+            </div>
+
+            <button type="submit">Signup</button>
+        </form>
+
+    </div>
+
+    <footer>
+        <div class="footer-links-cont">
+            <a href="/">
+                <img src="/media/icons/home.svg" alt="homepage">
+            </a>
+        </div>
+    </footer>
 </body>
 </html>

@@ -63,6 +63,13 @@ footer {
     padding: 0.75rem;
 }
 
+.footer-links-cont {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+}
+
 .footer-links-cont > a {
     display: grid;
     place-items: center;
@@ -129,7 +136,7 @@ body:has(.error-notice) {
 .home-header {
     align-self: baseline;
     padding: 0.5rem;
-    padding-left: 0.75rem;
+    padding-left: 1.25rem;
 }
 
 .home-header > h1 {
@@ -142,8 +149,24 @@ body:has(.error-notice) {
     font-weight: 300;
 }
 
+.session-info {
+    display: flex;
+}
+
+.session-user {
+    font-weight: 600;
+    font-style: italic;
+    max-width: 20ch;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 .home-main,
-.help-main {
+.help-main,
+.login-main,
+.signup-main,
+.logout-main {
     width: 100%;
     flex-grow: 1;
     border: 1px solid var(--main-border-color);
@@ -157,19 +180,22 @@ body:has(.error-notice) {
     justify-content: center;
 }
 
-.login-notice {
+.login-notice,
+.no-folders-notice {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 1rem;
 }
 
-.login-notice > .folder-icon-cont > img {
+.login-notice > .folder-icon-cont > img,
+.no-folders-notice > .folder-icon-cont > img {
     width: 2.25rem;
     height: 2.25rem;
 }
 
-.login-notice > .folder-icon-cont {
+.login-notice > .folder-icon-cont,
+.no-folders-notice > .folder-icon-cont {
     border: 1px solid var(--low-opacity-highlight);
     border-radius: 1rem;
     margin-bottom: 0.25rem;
@@ -197,6 +223,12 @@ body:has(.error-notice) {
     gap: 0.5rem;
 }
 
+.no-folders-notice > .action-links-cont {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .action-links-cont > a {
     display: flex;
     justify-content: center;
@@ -213,12 +245,14 @@ body:has(.error-notice) {
     height: 1.25rem;
 }
 
-.signup-link {
+.signup-link,
+.create-folder-link {
     background-color: var(--main-button-color);
 }
 
-.signup-link:hover {
-    filter: brightness(1.05);
+.signup-link:hover,
+.create-folder-link:hover {
+    filter: brightness(1.075);
 }
 
 .login-link {
@@ -299,3 +333,126 @@ body:has(.error-notice) {
 }
 
 /* ----------------------- Help Styles ----------------------- */
+
+/* ----------------------- Form Styles ----------------------- */
+
+.login-main,
+.signup-main,
+.logout-main {
+    justify-content: start;
+}
+
+.app-form {
+    margin-top: 1.5rem;
+
+    border: 1px solid var(--main-border-color);
+    border-radius: 0.5rem;
+
+    padding: 1rem;
+
+    min-width: 285px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-row > label {
+    font-size: var(--fs-sm);
+    margin-bottom: 0.25rem;
+}
+
+.form-row > input {
+    outline: none;
+    padding: 0.5rem 0.875rem;
+    border: 1px solid var(--main-border-color);
+    border-radius: 0.5rem;
+    background-color: transparent;
+
+    font-size: var(--fs-sm);
+    color: var(--text-color);
+
+    transition: 0.2s ease-in-out;
+}
+
+.form-row > input:focus {
+    border: 1px solid var(--main-button-color);
+}
+
+.app-form > button {
+    margin-top: 1.25rem;
+
+    width: 100%;
+
+    outline-color: var(--text-color);
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.35rem;
+
+    cursor: pointer;
+
+    background-color: var(--main-button-color);
+
+    transition: 0.2s ease-in-out;
+}
+
+.app-form > button:hover {
+    filter: brightness(1.075);
+}
+
+.app-form.logout-form > button {
+    margin-top: 0;
+}
+
+.logout-form > p {
+    text-align: center;
+    font-size: var(--fs-base);
+}
+
+.error-cont {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    border: 1px solid var(--error-border-color);
+    border-radius: 0.5rem;
+
+    padding: 0.75rem;
+
+    background-color: var(--error-background);
+
+    margin-bottom: 1.25rem;
+}
+
+.error-cont > img {
+    width: 1rem;
+    height: 1rem;
+}
+
+.error-cont > p {
+    font-size: var(--fs-sm);
+}
+
+.error-text {
+    font-size: var(--fs-sm);
+    color: var(--error-text);
+}
+
+@media (min-width: 40rem) {
+    .app-form {
+        width: 360px;
+    }
+}
+
+@media (min-width: 48rem) {
+    .app-form {
+        width: 420px;
+    }
+}
+
+/* ----------------------- Form Styles ----------------------- */

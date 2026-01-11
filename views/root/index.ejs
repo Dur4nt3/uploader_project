@@ -15,13 +15,50 @@
 </head>
 <body>
     <header class="home-header">
-        <h1>Uploader</h1>
-        <h2>A simple website to store images</h2>
+        <h1><%= locals.authenticated === true ? "Home" : "Uploader" %></h1>
+        <h2>
+            <% if (locals.authenticated === true) { %>
+                <p class="session-info">
+                    <span>Logged in as:&nbsp;</span>
+                    <span class="session-user"><%= locals.username %></span>
+                </p>
+            <% } else { %>
+                A simple website to store images
+            <% } %>
+        </h2>
     </header>
 
     <main class="home-main">
         <% if (locals.authenticated) { %>
-            <h1>User authenticated, show folders</h1>
+
+            <% if (locals.folders === null || locals.folders.length === 0) { %>
+
+                <div class="no-folders-notice">
+                    <div class="folder-icon-cont">
+                        <img src="/media/icons/create-folder-blue.svg">
+                    </div>
+                    
+                    <h2 class="notice-heading">No folders yet!</h2>
+                    <p class="notice-subtext">
+                        Create your first folder to start hosting and sharing your files.
+                    </p>
+
+                    <div class="action-links-cont">
+                        <a href="/create-folder" class="create-folder-link">
+                            <img src="/media/icons/create-folder-white.svg">
+                            Create folder
+                        </a>
+                    </div>
+                </div>
+
+            <% } else { %>
+
+                <div class="all-folders-cont">
+                    <h1>Show folders!</h1>
+                </div>
+
+            <% } %>
+
         <% } else { %>
             <div class="login-notice">
                 <div class="folder-icon-cont">
@@ -49,9 +86,23 @@
 
     <footer>
         <div class="footer-links-cont">
-            <a href="/help">
-                <img src="/media/icons/help.svg" alt="help page">
-            </a>
+            <% if (locals.authenticated === true) { %>
+                <a href="/logout">
+                    <img src="/media/icons/logout.svg" alt="logout">
+                </a>
+
+                <a href="/create-folder">
+                    <img src="/media/icons/create-folder-white.svg" alt="create a folder">
+                </a>
+
+                <a href="/help">
+                    <img src="/media/icons/help.svg" alt="help page">
+                </a>
+            <% } else { %>
+                <a href="/help">
+                    <img src="/media/icons/help.svg" alt="help page">
+                </a>
+            <% } %>
         </div>
     </footer>
 </body>

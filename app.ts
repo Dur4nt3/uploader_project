@@ -7,6 +7,8 @@ import { prisma } from './lib/prisma';
 import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 import passport from 'passport';
 
+import './auth/passportConfig';
+
 import indexRouter from './routes/indexRouter';
 
 const __dirname = import.meta.dirname;

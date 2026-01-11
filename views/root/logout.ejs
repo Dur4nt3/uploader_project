@@ -11,36 +11,27 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/media/favicon/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="Uploader" />
     <link rel="manifest" href="/media/favicon/site.webmanifest" />
-    <title>Login</title>
+    <title>Logout</title>
 </head>
 <body>
     <header class="home-header">
-        <h1>Login</h1>
-        <h2>Access your folders and files</h2>
+        <h1>Logout</h1>
+        <h2>End your session</h2>
     </header>
 
-    <div class="login-main">
-        <form action="/login" method="POST" class="login-form app-form">
-            <% if (locals.errors) { %>
-                <div class="error-cont">
-                    <img src="/media/icons/alert.svg">
-                    <p class="error-notice-text"><%= errors[0].msg%></p>
-                </div>
-            <% } %>
-            
-            <div class="form-row">
-                <label for="username">Username</label>
-                <input type="text" name="username" id="username">
-            </div>
-            
-            <div class="form-row">
-                <label for="password">Password</label>
-                <input type="password" name="password" id="password">
-            </div>
+    <div class="logout-main">
+        <% if (locals.authenticated === true) { %>
+            <form action="/logout" method="POST" class="logout-form app-form">
+                <p>End your session?</p>
 
-            <button type="submit">Login</button>
-        </form>
-
+                <button type="submit">Logout</button>
+            </form>
+        <% } else { %>
+            <div class="error-cont">
+                <img src="/media/icons/alert.svg">
+                <p class="error-notice-text">Cannot logout if you're not logged in!</p>
+            </div>
+        <% } %>
     </div>
 
     <footer>
