@@ -46,7 +46,7 @@
                     <div class="action-links-cont">
                         <a href="/create-folder" class="create-folder-link">
                             <img src="/media/icons/create-folder-white.svg">
-                            Create folder
+                            New folder
                         </a>
                     </div>
                 </div>
@@ -54,7 +54,7 @@
             <% } else { %>
 
                 <div class="all-folders-cont">
-                    <h1>Show folders!</h1>
+                    <%- include("../partials/folder-container.ejs", { folders: locals.folders }) %>
                 </div>
 
             <% } %>

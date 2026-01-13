@@ -26,7 +26,12 @@
         </h2>
 
         <p>
-            Return <a href="/">Home</a>
+            <% if (locals.customAction === true) { %>
+                <span><%= locals.customActionPrefix %></span>
+                <a href="<%= locals.customActionLink %>"><%= locals.customActionText %></a>
+            <% } else { %>
+                Return <a href="/">Home</a>
+            <% } %>
         </p>
     </div>
 </body>

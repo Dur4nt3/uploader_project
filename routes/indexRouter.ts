@@ -7,10 +7,14 @@ import {
     controllerGetHelp,
     controllerGetLogout,
     controllerGetCreateFolder,
+} from '../controllers/indexControllersGet';
+
+import {
     controllerPostLogin,
     controllerPostSignup,
     controllerPostLogout,
-} from '../controllers/indexControllers';
+    controllerPostCreateFolder,
+} from '../controllers/indexControllersPost';
 
 const indexRouter = Router();
 
@@ -37,6 +41,8 @@ indexRouter.post('/signup', controllerPostSignup);
 indexRouter.post('/login', controllerPostLogin);
 
 indexRouter.post('/logout', controllerPostLogout);
+
+indexRouter.post('/create-folder', controllerPostCreateFolder);
 
 // ------------ POST ROUTES ------------
 

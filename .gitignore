@@ -1,3 +1,6 @@
+# Custom Project Ignores
+testQueries.ts
+
 # Logs
 logs
 *.log

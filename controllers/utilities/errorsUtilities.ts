@@ -23,3 +23,15 @@ export function renderError500(res: Response) {
         errorDesc: "Sorry, we've experienced an internal error.",
     });
 }
+
+export function renderError401(res: Response) {
+    return res.render('error-page', {
+        errorTitle: 'Unauthorized',
+        errorCode: '401',
+        errorDesc: "You're not authorized to perform this action!",
+        customAction: true,
+        customActionPrefix: 'Please',
+        customActionLink: '/login',
+        customActionText: 'Login',
+    });
+}

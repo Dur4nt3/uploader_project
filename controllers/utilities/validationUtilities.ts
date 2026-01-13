@@ -1,9 +1,14 @@
 import { body } from 'express-validator';
-import { isUsernameUnique } from '../../db/queries/indexQueries';
+import {
+    isUsernameUnique,
+    isUserFolderUnique,
+    isValidVisibilityId,
+} from '../../db/queries/indexQueries';
 
 const emptyErr = 'must not be empty';
 const lengthErr = 'must be between 3 and 30 characters';
 const passwordLengthErr = 'must be at least 8 characters long';
+const descLengthErr = 'must be between 3 and 50 characters';
 const alphaNumericErr = 'must only contain letters and numbers';
 
 const validateSignup = [
@@ -54,4 +59,48 @@ const validateSignup = [
         }),
 ];
 
-export { validateSignup };
+const validateFolder = [
+    body('name')
+        .notEmpty()
+        .withMessage(`Folder name ${emptyErr}`)
+        .bail()
+        .isAlphanumeric('en-US', { ignore: ' ' })
+        .withMessage(`Folder name ${alphaNumericErr}`)
+        .bail()
+        .custom(async (name, { req }) => {
+            const unique = await isUserFolderUnique(req.user.userId, name);
+            if (!unique) {
+                throw new Error(`Folder "${name}" already exists`);
+            }
+            return true;
+        })
+        .bail()
+        .isLength({ min: 3, max: 30 })
+        .withMessage(`Folder name ${lengthErr}`),
+
+    body('description')
+        .optional({ values: 'falsy' })
+        .isAlphanumeric('en-US', { ignore: ' ' })
+        .withMessage(`Folder description ${alphaNumericErr}`)
+        .bail()
+        .isLength({ min: 3, max: 50 })
+        .withMessage(`Folder description ${descLengthErr}`),
+
+    body('visibility').custom(async (value) => {
+        let valid;
+
+        if (!Number.isInteger(Number(value))) {
+            throw new Error(`Visibility option format is invalid!`);
+        }
+
+        valid = await isValidVisibilityId(Number(value));
+
+        if (!valid) {
+            throw new Error(`Visibility option doesn't exist!`);
+        }
+
+        return true;
+    }),
+];
+
+export { validateSignup, validateFolder };

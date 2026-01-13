@@ -21,14 +21,13 @@
 
     <div class="signup-main">
         <form action="/signup" method="POST" class="signup-form app-form">
-            <div class="form-row">
-                <% if (locals.errors) { %>
+            <% if (locals.errors) { %>
                     <div class="error-cont">
                         <img src="/media/icons/alert.svg">
                         <p class="error-notice-text"><%= errors[0].msg%></p>
                     </div>
-                <% } %>
-
+            <% } %>
+            <div class="form-row">
                 <label for="username">Username</label>
                 <input type="text" name="username" id="username" value="<%= locals.username !== undefined ? locals.username : '' %>">
                 <% if (locals.usernameErrors ) { %>

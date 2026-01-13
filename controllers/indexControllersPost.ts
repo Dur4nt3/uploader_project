@@ -3,71 +3,16 @@ import type { Request, Response } from 'express';
 import { matchedData, validationResult } from 'express-validator';
 
 import { generatePassword } from '../auth/passwordUtils';
-import { validateSignup } from './utilities/validationUtilities';
+import {
+    validateSignup,
+    validateFolder,
+} from './utilities/validationUtilities';
 import { getFieldErrorMsg, renderError500 } from './utilities/errorsUtilities';
-import { createUser, getFoldersByUserId } from '../db/queries/indexQueries';
-
-// ------------ GET ROUTES ------------
-
-export async function controllerGetIndex(req: Request, res: Response) {
-    let username = null;
-    let name = null;
-    let folders = null;
-    if (req.isAuthenticated()) {
-        ({ username } = req.user);
-        ({ name } = req.user);
-        folders = await getFoldersByUserId(req.user.userId);
-    }
-
-    res.render('root/index', {
-        authenticated: req.isAuthenticated(),
-        username,
-        name,
-        folders,
-    });
-}
-
-export function controllerGetLogin(req: Request, res: Response) {
-    if (req.isAuthenticated()) {
-        return res.redirect('/');
-    }
-
-    res.render('root/login');
-}
-
-export function controllerGetSignup(req: Request, res: Response) {
-    if (req.isAuthenticated()) {
-        return res.redirect('/');
-    }
-
-    res.render('root/signup');
-}
-
-export function controllerGetHelp(req: Request, res: Response) {
-    res.render('root/help');
-}
-
-export function controllerGetLogout(req: Request, res: Response) {
-    let username = null;
-    if (req.isAuthenticated()) {
-        ({ username } = req.user);
-    } else {
-        return res.redirect('/');
-    }
-
-    res.render('root/logout', {
-        authenticated: req.isAuthenticated(),
-        username,
-    });
-}
-
-export function controllerGetCreateFolder(req: Request, res: Response) {
-    res.send('wip');
-}
-
-// ------------ GET ROUTES ------------
-
-// ------------ POST ROUTES ------------
+import {
+    createUser,
+    createFolder,
+    getAllVisibilityOptions,
+} from '../db/queries/indexQueries';
 
 function controllerPassportLogin(
     req: Request,
@@ -144,6 +89,53 @@ export function controllerPostLogout(req: Request, res: Response) {
     });
 }
 
-// ------------ POST ROUTES ------------
+const controllerPostCreateFolder: any = [
+    validateFolder,
+    async (req: Request, res: Response) => {
 
-export { controllerPostSignup };
+        if (!req.isAuthenticated()) {
+            return renderError500(res);
+        }
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            const errorsArray = errors.array();
+
+            // If there's an error with the visibility option
+            // The user tempered with the form's code
+            // Navigate to an error 500 page
+            const visibilityErrors = getFieldErrorMsg(
+                errorsArray,
+                'visibility',
+            );
+            if (visibilityErrors.length !== 0) {
+                return renderError500(res);
+            }
+
+            const options = await getAllVisibilityOptions();
+
+            return res.status(400).render('root/create-folder', {
+                options,
+                errors: [{ msg: 'Please fix the errors below' }],
+                name: req.body.name,
+                description: req.body.description,
+                nameErrors: getFieldErrorMsg(errorsArray, 'name'),
+                descriptionErrors: getFieldErrorMsg(errorsArray, 'description'),
+            });
+        }
+
+        const { name, description, visibility } = matchedData(req);
+
+        const userId = req.user.userId
+
+        const creationStatus = await createFolder(name, userId, Number(visibility), description);
+
+        if (creationStatus === null) {
+            return renderError500(res);
+        }
+
+        return res.redirect('/');
+    },
+];
+
+export { controllerPostSignup, controllerPostCreateFolder };
