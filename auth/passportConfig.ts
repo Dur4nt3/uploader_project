@@ -2,7 +2,7 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 
 import { validatePassword } from "./passwordUtils";
-import { getUserByUsername, getUserById } from "../db/queries/indexQueries";
+import { getUserByUsername, getUserById } from "../db/queries/indexQueriesSelect";
 
 async function verifyCallback(username: string, password: string, done: any) {
     try {

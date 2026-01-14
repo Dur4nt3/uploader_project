@@ -3,16 +3,23 @@ import type { Request, Response } from 'express';
 import { matchedData, validationResult } from 'express-validator';
 
 import { generatePassword } from '../auth/passwordUtils';
+
 import {
     validateSignup,
     validateFolder,
 } from './utilities/validationUtilities';
+
 import { getFieldErrorMsg, renderError500 } from './utilities/errorsUtilities';
+
+import { createUser, createFolder } from '../db/queries/indexQueriesInsert';
+
+import { updateFolder } from '../db/queries/indexQueriesUpdate';
+
 import {
-    createUser,
-    createFolder,
     getAllVisibilityOptions,
-} from '../db/queries/indexQueries';
+    getFolderByUserIdAndFolderId,
+    isUserAllowToCreateFolder,
+} from '../db/queries/indexQueriesSelect';
 
 function controllerPassportLogin(
     req: Request,
@@ -92,27 +99,38 @@ export function controllerPostLogout(req: Request, res: Response) {
 const controllerPostCreateFolder: any = [
     validateFolder,
     async (req: Request, res: Response) => {
-
         if (!req.isAuthenticated()) {
             return renderError500(res);
+        }
+
+        let options;
+
+        const creationAuthorized = await isUserAllowToCreateFolder(
+            req.user.userId,
+        );
+        if (!creationAuthorized) {
+            options = await getAllVisibilityOptions();
+
+            return res.status(400).render('root/create-folder', {
+                errors: [{ msg: "You've reached the folder limit" }],
+                options,
+            });
         }
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             const errorsArray = errors.array();
 
-            // If there's an error with the visibility option
-            // The user tempered with the form's code
-            // Navigate to an error 500 page
             const visibilityErrors = getFieldErrorMsg(
                 errorsArray,
                 'visibility',
             );
+
             if (visibilityErrors.length !== 0) {
                 return renderError500(res);
             }
 
-            const options = await getAllVisibilityOptions();
+            options = await getAllVisibilityOptions();
 
             return res.status(400).render('root/create-folder', {
                 options,
@@ -126,9 +144,14 @@ const controllerPostCreateFolder: any = [
 
         const { name, description, visibility } = matchedData(req);
 
-        const userId = req.user.userId
+        const userId = req.user.userId;
 
-        const creationStatus = await createFolder(name, userId, Number(visibility), description);
+        const creationStatus = await createFolder(
+            name,
+            userId,
+            Number(visibility),
+            description,
+        );
 
         if (creationStatus === null) {
             return renderError500(res);
@@ -138,4 +161,73 @@ const controllerPostCreateFolder: any = [
     },
 ];
 
-export { controllerPostSignup, controllerPostCreateFolder };
+const controllerPostEditFolder: any = [
+    validateFolder,
+    async (req: Request, res: Response) => {
+        if (!req.isAuthenticated() || req.params.folderId === undefined) {
+            return renderError500(res);
+        }
+
+        // Checking if the folder to be updated exists and actually belongs to the user
+        const isOwner = await getFolderByUserIdAndFolderId(
+            req.user.userId,
+            Number(req.params.folderId),
+        );
+
+        if (isOwner === null) {
+            return renderError500(res);
+        }
+
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            const errorsArray = errors.array();
+
+            const visibilityErrors = getFieldErrorMsg(
+                errorsArray,
+                'visibility',
+            );
+
+            if (visibilityErrors.length !== 0) {
+                return renderError500(res);
+            }
+
+            const options = await getAllVisibilityOptions();
+
+            return res.status(400).render('root/edit-folder', {
+                options,
+                errors: [{ msg: 'Please fix the errors below' }],
+                name: req.body.name,
+                description: req.body.description,
+                nameErrors: getFieldErrorMsg(errorsArray, 'name'),
+                descriptionErrors: getFieldErrorMsg(errorsArray, 'description'),
+                folder: isOwner,
+            });
+        }
+
+        const { name, description, visibility } = matchedData(req);
+
+        const userId = req.user.userId;
+
+        const updateStatus = await updateFolder(
+            Number(req.params.folderId),
+            name,
+            Number(visibility),
+            userId,
+            description,
+        );
+
+        if (updateStatus === null) {
+            console.log('here');
+            return renderError500(res);
+        }
+
+        return res.redirect('/');
+    },
+];
+
+export {
+    controllerPostSignup,
+    controllerPostCreateFolder,
+    controllerPostEditFolder,
+};

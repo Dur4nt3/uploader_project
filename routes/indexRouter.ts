@@ -7,6 +7,7 @@ import {
     controllerGetHelp,
     controllerGetLogout,
     controllerGetCreateFolder,
+    controllerGetEditFolder,
 } from '../controllers/indexControllersGet';
 
 import {
@@ -14,6 +15,7 @@ import {
     controllerPostSignup,
     controllerPostLogout,
     controllerPostCreateFolder,
+    controllerPostEditFolder,
 } from '../controllers/indexControllersPost';
 
 const indexRouter = Router();
@@ -32,6 +34,8 @@ indexRouter.get('/logout', controllerGetLogout);
 
 indexRouter.get('/create-folder', controllerGetCreateFolder);
 
+indexRouter.get('/edit-folder/:folderId', controllerGetEditFolder);
+
 // ------------ GET ROUTES ------------
 
 // ------------ POST ROUTES ------------
@@ -43,6 +47,8 @@ indexRouter.post('/login', controllerPostLogin);
 indexRouter.post('/logout', controllerPostLogout);
 
 indexRouter.post('/create-folder', controllerPostCreateFolder);
+
+indexRouter.post('/edit-folder/:folderId', controllerPostEditFolder);
 
 // ------------ POST ROUTES ------------
 

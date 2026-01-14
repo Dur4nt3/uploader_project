@@ -3,7 +3,8 @@ import {
     isUsernameUnique,
     isUserFolderUnique,
     isValidVisibilityId,
-} from '../../db/queries/indexQueries';
+    getFolderByUserIdAndName,
+} from '../../db/queries/indexQueriesSelect';
 
 const emptyErr = 'must not be empty';
 const lengthErr = 'must be between 3 and 30 characters';
@@ -70,6 +71,13 @@ const validateFolder = [
         .custom(async (name, { req }) => {
             const unique = await isUserFolderUnique(req.user.userId, name);
             if (!unique) {
+                if (req.url.includes('edit-folder') && req.params !== undefined) {
+                    const folderWithSelectedName = await getFolderByUserIdAndName(req.user.userId, name);
+                    if (folderWithSelectedName?.folderId === Number(req.params.folderId)) {
+                        return true;
+                    }
+                }
+
                 throw new Error(`Folder "${name}" already exists`);
             }
             return true;

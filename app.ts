@@ -11,6 +11,8 @@ import './auth/passportConfig';
 
 import indexRouter from './routes/indexRouter';
 
+import { renderError404 } from './controllers/utilities/errorsUtilities';
+
 const __dirname = import.meta.dirname;
 
 const app = express();
@@ -27,7 +29,7 @@ app.set('view engine', 'ejs');
 const cookieSecret = process.env.COOKIE_SECRET;
 
 if (cookieSecret === undefined) {
-    throw new Error("ERROR: COOKIE_SECRET is not defined in .env");
+    throw new Error('ERROR: COOKIE_SECRET is not defined in .env');
 }
 
 app.use(
@@ -49,11 +51,9 @@ app.use(passport.session());
 app.use('/', indexRouter);
 
 // Error middleware
-app.use((req, res) => res.render('error-page', {
-    errorTitle: 'Not Found',
-    errorCode: '404',
-    errorDesc: 'Could not find the requested page.'
-}));
+app.use((req, res) => {
+    return renderError404(res);
+});
 
 const appPort = process.env.PORT || 8080;
 

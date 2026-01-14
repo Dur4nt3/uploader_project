@@ -24,6 +24,14 @@ export function renderError500(res: Response) {
     });
 }
 
+export function renderError404(res: Response) {
+    return res.render('error-page', {
+        errorTitle: 'Not Found',
+        errorCode: '404',
+        errorDesc: 'Could not find the requested page.',
+    });
+}
+
 export function renderError401(res: Response) {
     return res.render('error-page', {
         errorTitle: 'Unauthorized',

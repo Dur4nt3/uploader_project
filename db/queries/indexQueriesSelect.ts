@@ -33,7 +33,7 @@ export async function getUserAndFolders(userId: number) {
         },
     });
 
-    return;
+    return user;
 }
 
 export async function getFoldersByUserId(userId: number) {
@@ -42,12 +42,48 @@ export async function getFoldersByUserId(userId: number) {
             userId: userId,
         },
         include: {
-            files: true,
+            files: {
+                include: {
+                    visibility: true,
+                },
+            },
             visibility: true,
         },
     });
 
     return folders;
+}
+
+export async function getFolderByUserIdAndFolderId(
+    userId: number,
+    folderId: number,
+) {
+    let folder;
+
+    try {
+        folder = await prisma.folder.findUnique({
+            where: {
+                folderId,
+                userId,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+
+    return folder;
+}
+
+export async function getFolderByUserIdAndName(userId: number, name: string) {
+    const folder = await prisma.folder.findFirst({
+        where: {
+            userId,
+            name,
+        },
+    });
+
+    return folder;
 }
 
 export async function getAllVisibilityOptions() {
@@ -87,42 +123,14 @@ export async function isValidVisibilityId(visibilityId: number) {
     return visibility !== null;
 }
 
+export async function isUserAllowToCreateFolder(userId: number) {
+    const userFolders = await getUserAndFolders(userId);
+
+    if (userFolders === null) {
+        return false;
+    }
+
+    return userFolders.folders.length < 10;
+}
+
 // ------------ SELECT QUERIES (VALIDATION ONLY) ------------
-
-// ------------ INSERT QUERIES ------------
-
-export async function createUser(
-    username: string,
-    name: string,
-    hashedPassword: string,
-) {
-    const user = await prisma.user.create({
-        data: {
-            username: username,
-            name: name,
-            password: hashedPassword,
-        },
-    });
-
-    return user;
-}
-
-export async function createFolder(
-    name: string,
-    userId: number,
-    visibilityId: number,
-    description?: string,
-) {
-    const folder = await prisma.folder.create({
-        data: {
-            name,
-            userId,
-            visibilityId,
-            description: description !== undefined ? description : null,
-        },
-    });
-
-    return folder;
-}
-
-// ------------ INSERT QUERIES ------------

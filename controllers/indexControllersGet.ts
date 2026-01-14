@@ -1,10 +1,11 @@
 import type { Request, Response } from 'express';
 
-import { renderError401 } from './utilities/errorsUtilities';
+import { renderError401, renderError404 } from './utilities/errorsUtilities';
 import {
     getFoldersByUserId,
     getAllVisibilityOptions,
-} from '../db/queries/indexQueries';
+    getFolderByUserIdAndFolderId
+} from '../db/queries/indexQueriesSelect';
 
 export async function controllerGetIndex(req: Request, res: Response) {
     let username = null;
@@ -67,4 +68,25 @@ export async function controllerGetCreateFolder(req: Request, res: Response) {
     const options = await getAllVisibilityOptions();
 
     res.render('root/create-folder', { options });
+}
+
+export async function controllerGetEditFolder(req: Request, res: Response) {
+    if (!req.isAuthenticated()) {
+        return renderError401(res);
+    }
+
+    if (req.params.folderId === undefined) {
+        return renderError404(res);
+    }
+
+    const options = await getAllVisibilityOptions();
+    const folder = await getFolderByUserIdAndFolderId(req.user.userId, Number(req.params.folderId));
+
+    if (folder === null) {
+        return renderError404(res);
+    }
+
+    console.log(folder);
+
+    res.render('root/edit-folder', { options, folder });
 }

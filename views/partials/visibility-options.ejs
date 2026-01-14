@@ -1,4 +1,15 @@
-<% if (locals.options) { %>
+<% if (locals.options && locals.checkedOption) { %>
+    <% for (const optionIndex in options) { %>
+        <% const option = options[optionIndex] %>
+        <label class="radio-option">
+            <input type="radio" name="visibility" value="<%= option.visibilityId %>" <%= checkedOption === option.visibilityId ? "checked" : "" %> />
+            <div>
+                <strong><%= option.name %></strong>
+                <span><%= option.description %></span>
+            </div>
+        </label>
+    <% } %>
+<% } else if (locals.options) { %>
     <% for (const optionIndex in options) { %>
         <% const option = options[optionIndex] %>
         <label class="radio-option">
