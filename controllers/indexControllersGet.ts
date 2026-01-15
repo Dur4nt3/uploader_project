@@ -86,7 +86,25 @@ export async function controllerGetEditFolder(req: Request, res: Response) {
         return renderError404(res);
     }
 
-    console.log(folder);
-
     res.render('root/edit-folder', { options, folder });
 }
+
+export async function controllerGetDeleteFolder(req: Request, res: Response) {
+    if (!req.isAuthenticated()) {
+        return renderError401(res);
+    }
+
+    if (req.params.folderId === undefined) {
+        return renderError404(res);
+    }
+
+    const options = await getAllVisibilityOptions();
+    const folder = await getFolderByUserIdAndFolderId(req.user.userId, Number(req.params.folderId));
+
+    if (folder === null) {
+        return renderError404(res);
+    }
+
+    res.render('root/delete-folder', { options, folder });
+}
+

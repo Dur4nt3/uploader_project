@@ -15,6 +15,8 @@ import { createUser, createFolder } from '../db/queries/indexQueriesInsert';
 
 import { updateFolder } from '../db/queries/indexQueriesUpdate';
 
+import { deleteFolder } from '../db/queries/indexQueriesDelete';
+
 import {
     getAllVisibilityOptions,
     getFolderByUserIdAndFolderId,
@@ -218,13 +220,37 @@ const controllerPostEditFolder: any = [
         );
 
         if (updateStatus === null) {
-            console.log('here');
             return renderError500(res);
         }
 
         return res.redirect('/');
     },
 ];
+
+export async function controllerPostDeleteFolder(req: Request, res: Response) {
+    if (!req.isAuthenticated() || req.params.folderId === undefined) {
+        return renderError500(res);
+    }
+
+    // Checking if the folder to be delete exists and actually belongs to the user
+    const isOwner = await getFolderByUserIdAndFolderId(
+        req.user.userId,
+        Number(req.params.folderId),
+    );
+
+    if (isOwner === null) {
+        return renderError500(res);
+    }
+
+    const deleteStatus = await deleteFolder(req.user.userId, Number(req.params.folderId));
+    console.log(deleteStatus);
+
+    if (deleteStatus === null) {
+        return renderError500(res);
+    }
+
+    return res.redirect('/');
+}
 
 export {
     controllerPostSignup,
