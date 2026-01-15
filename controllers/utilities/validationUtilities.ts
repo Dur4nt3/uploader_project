@@ -32,6 +32,7 @@ const validateSignup = [
         .withMessage(`Username ${lengthErr}`),
 
     body('name')
+        .trim()
         .notEmpty()
         .withMessage(`Name ${emptyErr}`)
         .bail()
@@ -62,18 +63,26 @@ const validateSignup = [
 
 const validateFolder = [
     body('name')
+        .trim()
         .notEmpty()
         .withMessage(`Folder name ${emptyErr}`)
         .bail()
-        .isAlphanumeric('en-US', { ignore: ' ' })
+        .isAlphanumeric('en-US', { ignore: /[\s'._\-()&]/g })
         .withMessage(`Folder name ${alphaNumericErr}`)
         .bail()
         .custom(async (name, { req }) => {
             const unique = await isUserFolderUnique(req.user.userId, name);
             if (!unique) {
-                if (req.url.includes('edit-folder') && req.params !== undefined) {
-                    const folderWithSelectedName = await getFolderByUserIdAndName(req.user.userId, name);
-                    if (folderWithSelectedName?.folderId === Number(req.params.folderId)) {
+                if (
+                    req.url.includes('edit-folder') &&
+                    req.params !== undefined
+                ) {
+                    const folderWithSelectedName =
+                        await getFolderByUserIdAndName(req.user.userId, name);
+                    if (
+                        folderWithSelectedName?.folderId ===
+                        Number(req.params.folderId)
+                    ) {
                         return true;
                     }
                 }
@@ -87,8 +96,9 @@ const validateFolder = [
         .withMessage(`Folder name ${lengthErr}`),
 
     body('description')
+        .trim()
         .optional({ values: 'falsy' })
-        .isAlphanumeric('en-US', { ignore: ' ' })
+        .isAlphanumeric('en-US', { ignore: /[\s'._\-()&]/g })
         .withMessage(`Folder description ${alphaNumericErr}`)
         .bail()
         .isLength({ min: 3, max: 50 })
