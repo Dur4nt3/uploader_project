@@ -54,6 +54,11 @@ export async function getFoldersByUserId(userId: number) {
     return folders;
 }
 
+// NOTE:
+// This is also a great validation query
+// It checks whether:
+// 1) A specified folder exists
+// 2) The specified folder belongs to the user
 export async function getFolderByUserIdAndFolderId(
     userId: number,
     folderId: number,

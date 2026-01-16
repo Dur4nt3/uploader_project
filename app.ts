@@ -10,6 +10,7 @@ import passport from 'passport';
 import './auth/passportConfig';
 
 import indexRouter from './routes/indexRouter';
+import folderRouter from './routes/folderRouter';
 
 import { renderError404 } from './controllers/utilities/errorsUtilities';
 
@@ -49,9 +50,10 @@ app.use(
 app.use(passport.session());
 
 app.use('/', indexRouter);
+app.use('/folder', folderRouter);
 
 // Error middleware
-app.use((req, res) => {
+app.use('/', (req, res) => {
     return renderError404(res);
 });
 

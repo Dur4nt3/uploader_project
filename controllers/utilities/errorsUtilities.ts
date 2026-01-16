@@ -32,6 +32,18 @@ export function renderError404(res: Response) {
     });
 }
 
+export function renderError404Custom(res: Response, actionPrefix: string, actionLink: string, actionText: string) {
+    return res.render('error-page', {
+        errorTitle: 'Not Found',
+        errorCode: '404',
+        errorDesc: 'Could not find the requested page.',
+        customAction: true,
+        customActionPrefix: actionPrefix,
+        customActionLink: actionLink,
+        customActionText: actionText,
+    });
+}
+
 export function renderError401(res: Response) {
     return res.render('error-page', {
         errorTitle: 'Unauthorized',
