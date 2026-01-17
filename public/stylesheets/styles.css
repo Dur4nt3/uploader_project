@@ -45,9 +45,9 @@ body {
     color: var(--text-color);
     background-color: var(--background-color);
 
-    font-family: Inter, system-ui, 'Trebuchet MS', 'Segoe UI', Roboto, Helvetica,
-        Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol';
+    font-family:
+        Inter, system-ui, 'Trebuchet MS', 'Segoe UI', Roboto, Helvetica, Arial,
+        sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 
     min-height: 100svh;
 
@@ -532,6 +532,7 @@ body:has(.error-notice) {
     padding: 1rem;
 
     min-width: 285px;
+    max-width: 285px;
 
     display: flex;
     flex-direction: column;
@@ -652,6 +653,43 @@ input[type='radio']:checked::before {
     line-height: 1.4;
 }
 
+.form-row input[type='file'] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+}
+
+.browse-cont:has(+ input[type='file']:focus),
+.browse-cont:has(+ input[type='file']:focus-visible) {
+    border-color: var(--main-button-color);
+}
+
+.browse-cont {
+    border: 1px dashed var(--main-border-color);
+    border-radius: 0.625rem;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+
+    transition: 0.2s ease-in-out;
+}
+
+.browse-cont:hover {
+    border-color: var(--main-button-color);
+}
+
+.browse-cont strong {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.browse-cont .hint {
+    color: var(--sub-text);
+}
+
 .app-form > button {
     margin-top: 1.25rem;
 
@@ -738,6 +776,7 @@ input[type='radio']:checked::before {
 @media (min-width: 40rem) {
     .app-form {
         width: 360px;
+        max-width: 360px;
     }
 
     .delete-folder-form > .deleted-folder {
@@ -748,6 +787,7 @@ input[type='radio']:checked::before {
 @media (min-width: 48rem) {
     .app-form {
         width: 420px;
+        max-width: 420px;
     }
 
     .delete-folder-form > .deleted-folder {

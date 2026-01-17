@@ -29,7 +29,7 @@
             <% } %>
 
             <div class="form-row">
-                <label for="name">Folder Name</label>
+                <label for="name">Name</label>
                 <input type="text" name="name" id="name" value="<%= locals.name !== undefined ? locals.name : '' %>">
                 <% if (locals.nameErrors ) { %>
                     <%- include("../partials/inline-errors.ejs", { errors: locals.nameErrors }) %>

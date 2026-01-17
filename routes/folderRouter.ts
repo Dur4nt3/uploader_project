@@ -3,13 +3,15 @@ import type { Request } from 'express';
 
 import { renderError404Custom, renderError404 } from '../controllers/utilities/errorsUtilities';
 
-import { controllerGetFolder } from '../controllers/folderControllersGet';
+import { controllerGetFolder, controllerGetCreateFile } from '../controllers/folderControllersGet';
 
 const folderRouter = Router();
 
 // ------------ GET ROUTES ------------
 
 folderRouter.get('/:folderId', controllerGetFolder);
+
+folderRouter.get('/:folderId/create-file', controllerGetCreateFile);
 
 // ------------ GET ROUTES ------------
 
