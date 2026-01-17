@@ -3,7 +3,8 @@ import type { Request } from 'express';
 
 import { renderError404Custom, renderError404 } from '../controllers/utilities/errorsUtilities';
 
-import { controllerGetFolder } from '../controllers/folderControllersGet';
+import { controllerGetFolder, controllerGetCreateFile } from '../controllers/folderControllersGet';
+import { controllerPostCreateFile } from '../controllers/folderControllerPost';
 
 const folderRouter = Router();
 
@@ -11,9 +12,13 @@ const folderRouter = Router();
 
 folderRouter.get('/:folderId', controllerGetFolder);
 
+folderRouter.get('/:folderId/create-file', controllerGetCreateFile);
+
 // ------------ GET ROUTES ------------
 
 // ------------ POST ROUTES ------------
+
+folderRouter.post('/:folderId/create-file', controllerPostCreateFile);
 
 // ------------ POST ROUTES ------------
 

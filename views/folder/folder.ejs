@@ -39,7 +39,9 @@
                 </div>
             </div>
         <% } else { %>
-            <h1>show files!</h1>
+            <div class="all-files-cont">
+                    <%- include("../partials/file-container.ejs", { files: locals.files, folderId: folder.folderId }) %>
+            </div>
         <% } %>
     </main>
 

@@ -1,0 +1,21 @@
+<% if (locals.files) { %>
+    <% for (const file of files) { %>
+        <div class="file-cont">
+            <div class="file-info">
+                <img src="/media/icons/file-blue.svg">
+                <div class="file-text">
+                    <h2 class="file-name"><%= file.name %></h2>
+                    <p class="file-subtext">
+                        <%= file.visibility.name %>
+                    </p>
+                </div>
+            </div>
+
+            <div class="file-actions">
+                <a href="<%= `/folder/${folderId}/edit-file/${file.fileId}` %>" class="edit-file-link">Edit</a>
+                <a href="<%= `/folder/${folderId}/file/${file.fileId}` %>" class="view-file-link">Open</a>
+                <a href="<%= `/folder/${folderId}/delete-file/${file.fileId}` %>" class="delete-file-link">Delete</a>
+            </div>
+        </div>
+    <% } %>
+<% } %>
