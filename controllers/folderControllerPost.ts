@@ -11,6 +11,7 @@ import {
     getFieldErrorMsg,
     renderError500,
     renderError401,
+    renderError404,
 } from './utilities/errorsUtilities';
 
 import {
@@ -20,10 +21,15 @@ import {
 import { isUserAllowedToCreateFile } from '../db/queries/folderQueriesSelect';
 import { createFile } from '../db/queries/folderQueriesInsert';
 
+import { cloudinaryUploadImage } from '../cloudinary/cloudinaryCalls';
+
 const multerStorage = multer.diskStorage({
     destination: 'uploads/',
     filename: (req, file, callback) => {
-        callback(null, file.originalname + '-' + Math.round(Math.random() * 1E6));
+        callback(
+            null,
+            Math.round(Math.random() * 1e6) + '-' + file.originalname,
+        );
     },
 });
 
@@ -61,6 +67,11 @@ const controllerPostCreateFile: any = [
             });
         }
 
+        const folder = await getFolderByUserIdAndFolderId(
+            req.user.userId,
+            Number(req.params.folderId),
+        );
+
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             const errorsArray = errors.array();
@@ -75,10 +86,6 @@ const controllerPostCreateFile: any = [
             }
 
             options = await getAllVisibilityOptions();
-            const folder = await getFolderByUserIdAndFolderId(
-                req.user.userId,
-                Number(req.params.folderId),
-            );
 
             await removeAllUploads();
             return res.status(400).render('folder/create-file', {
@@ -93,7 +100,44 @@ const controllerPostCreateFile: any = [
             });
         }
 
-        res.send('ready to create file!');
+        let uploadResult;
+
+        if (req.file?.path === undefined) {
+            return renderError500(res);
+        }
+
+        try {
+            uploadResult = await cloudinaryUploadImage(
+                req.file?.path,
+                req.user.username,
+                // @ts-ignore
+                // Check is already done within folderChecks
+                folder.folderId,
+                req.body.name,
+            );
+
+            await removeAllUploads();
+        } catch (error) {
+            console.error(error);
+            return renderError500(res);
+        }
+
+        const { name, description, visibility } = matchedData(req);
+
+        const creationStatus = await createFile(
+            name,
+            // @ts-ignore
+            // Check is already done within folderChecks
+            folder?.folderId,
+            Number(visibility),
+            description,
+        );
+
+        if (creationStatus === null) {
+            return renderError500(res);
+        }
+
+        return res.redirect(`/folder/${folder?.folderId}`);
     },
 ];
 

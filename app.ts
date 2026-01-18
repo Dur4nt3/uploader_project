@@ -8,6 +8,7 @@ import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 import passport from 'passport';
 
 import './auth/passportConfig';
+import './cloudinary/cloudinaryConfig';
 
 import indexRouter from './routes/indexRouter';
 import folderRouter from './routes/folderRouter';

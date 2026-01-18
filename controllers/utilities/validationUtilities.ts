@@ -138,7 +138,7 @@ const validateFile = [
         .bail()
         .custom(async (name, { req }) => {
             if (req.params === undefined) {
-                throw new Error(`File "${name}" already exists`);
+                throw new Error();
             }
 
             const unique = await isUserFileUnique(
@@ -149,6 +149,7 @@ const validateFile = [
             if (unique === null || unique.length > 0) {
                 throw new Error(`File "${name}" already exists`);
             }
+            
             return true;
         })
         .bail()
