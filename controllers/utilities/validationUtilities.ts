@@ -14,6 +14,10 @@ const passwordLengthErr = 'must be at least 8 characters long';
 const descLengthErr = 'must be between 3 and 50 characters';
 const alphaNumericErr = 'must only contain letters and numbers';
 
+const validMimeTypes = /png|jpeg|jpg|webp/
+// 5 MB = 5 BYTES * 1024 * 1024
+const maxFileSize = 5 * 1024 * 1024
+
 const validateSignup = [
     body('username')
         .notEmpty()
@@ -141,7 +145,7 @@ const validateFile = [
                 Number(req.params.folderId),
                 name,
             );
-            
+
             if (unique === null || unique.length > 0) {
                 throw new Error(`File "${name}" already exists`);
             }
@@ -171,6 +175,26 @@ const validateFile = [
 
         if (!valid) {
             throw new Error(`Visibility option doesn't exist!`);
+        }
+
+        return true;
+    }),
+
+    // Note: placeholder will always be undefined
+    // We are using "req.file" for the validation
+    body('image').custom(async (placeholder, { req }) => {
+        const { file } = req;
+
+        if (file === undefined) {
+            throw new Error('Please select an image')
+        }
+        
+        if (!validMimeTypes.test(file.mimetype)) {
+            throw new Error('Invalid file type');
+        }
+
+        if (file.size > (maxFileSize)) {
+            throw new Error('Image exceeds maximum size');
         }
 
         return true;

@@ -55,11 +55,8 @@
             
             <div class="form-row">
                 <label for="image">Image</label>
-                <label class="browse-cont" for="image">
-                    <strong>Click to browse files</strong>
-                    <span class="hint">(Images only, up to 5MB)</span>
-                </label>
                 <input type="file" name="image" id="image" />
+                <span class="hint">.png, .jpeg, .jpg, .webp only (up to 5MB)</span>
                 <% if (locals.fileErrors ) { %>
                     <%- include("../partials/inline-errors.ejs", { errors: locals.fileErrors }) %>
                 <% } %>

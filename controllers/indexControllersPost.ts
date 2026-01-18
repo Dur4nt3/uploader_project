@@ -114,6 +114,7 @@ const controllerPostCreateFolder: any = [
         const creationAuthorized = await isUserAllowToCreateFolder(
             req.user.userId,
         );
+
         if (!creationAuthorized) {
             options = await getAllVisibilityOptions();
 

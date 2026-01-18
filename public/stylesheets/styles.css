@@ -653,41 +653,26 @@ input[type='radio']:checked::before {
     line-height: 1.4;
 }
 
-.form-row input[type='file'] {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
+input[type='file'] {
+    padding: 0.5rem;
 }
 
-.browse-cont:has(+ input[type='file']:focus),
-.browse-cont:has(+ input[type='file']:focus-visible) {
-    border-color: var(--main-button-color);
-}
-
-.browse-cont {
-    border: 1px dashed var(--main-border-color);
-    border-radius: 0.625rem;
-    padding: 1rem;
-    text-align: center;
+input[type='file']::file-selector-button {
+    margin-right: 0.75rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 0.5rem;
+    border: none;
+    background: var(--main-button-color);
     cursor: pointer;
-
-    transition: 0.2s ease-in-out;
 }
 
-.browse-cont:hover {
-    border-color: var(--main-button-color);
+input[type='file']::file-selector-button:hover {
+    opacity: 0.9;
 }
 
-.browse-cont strong {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.browse-cont .hint {
+.form-row > .hint {
     color: var(--sub-text);
+    font-size: var(--fs-sm);
 }
 
 .app-form > button {
