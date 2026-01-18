@@ -9,7 +9,11 @@ import {
     validateFolder,
 } from './utilities/validationUtilities';
 
-import { getFieldErrorMsg, renderError500 } from './utilities/errorsUtilities';
+import {
+    getFieldErrorMsg,
+    renderError500,
+    renderError401,
+} from './utilities/errorsUtilities';
 
 import { createUser, createFolder } from '../db/queries/indexQueriesInsert';
 
@@ -102,7 +106,7 @@ const controllerPostCreateFolder: any = [
     validateFolder,
     async (req: Request, res: Response) => {
         if (!req.isAuthenticated()) {
-            return renderError500(res);
+            return renderError401(res);
         }
 
         let options;
@@ -166,7 +170,11 @@ const controllerPostCreateFolder: any = [
 const controllerPostEditFolder: any = [
     validateFolder,
     async (req: Request, res: Response) => {
-        if (!req.isAuthenticated() || req.params.folderId === undefined) {
+        if (!req.isAuthenticated()) {
+            return renderError401(res);
+        }
+
+        if (req.params.folderId === undefined) {
             return renderError500(res);
         }
 
@@ -228,7 +236,11 @@ const controllerPostEditFolder: any = [
 ];
 
 export async function controllerPostDeleteFolder(req: Request, res: Response) {
-    if (!req.isAuthenticated() || req.params.folderId === undefined) {
+    if (!req.isAuthenticated()) {
+        return renderError401(res);
+    }
+
+    if (req.params.folderId === undefined) {
         return renderError500(res);
     }
 
@@ -242,8 +254,10 @@ export async function controllerPostDeleteFolder(req: Request, res: Response) {
         return renderError500(res);
     }
 
-    const deleteStatus = await deleteFolder(req.user.userId, Number(req.params.folderId));
-    console.log(deleteStatus);
+    const deleteStatus = await deleteFolder(
+        req.user.userId,
+        Number(req.params.folderId),
+    );
 
     if (deleteStatus === null) {
         return renderError500(res);

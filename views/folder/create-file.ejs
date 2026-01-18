@@ -43,6 +43,15 @@
                     <%- include("../partials/inline-errors.ejs", { errors: locals.descriptionErrors }) %>
                 <% } %>
             </div>
+
+            <div class="form-row">
+                <fieldset>
+                    <legend>Visibility</legend>
+                    <div class="radio-list">
+                        <%- include("../partials/visibility-options.ejs", { options: locals.options }) %>
+                    </div>
+                </fieldset>
+            </div>
             
             <div class="form-row">
                 <label for="image">Image</label>

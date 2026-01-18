@@ -6,6 +6,8 @@ import {
     getFolderByUserIdAndName,
 } from '../../db/queries/indexQueriesSelect';
 
+import { isUserFileUnique } from '../../db/queries/folderQueriesSelect';
+
 const emptyErr = 'must not be empty';
 const lengthErr = 'must be between 3 and 30 characters';
 const passwordLengthErr = 'must be at least 8 characters long';
@@ -121,4 +123,58 @@ const validateFolder = [
     }),
 ];
 
-export { validateSignup, validateFolder };
+const validateFile = [
+    body('name')
+        .trim()
+        .notEmpty()
+        .withMessage(`File name ${emptyErr}`)
+        .bail()
+        .isAlphanumeric()
+        .withMessage(`File name ${alphaNumericErr}`)
+        .bail()
+        .custom(async (name, { req }) => {
+            if (req.params === undefined) {
+                throw new Error(`File "${name}" already exists`);
+            }
+
+            const unique = await isUserFileUnique(
+                Number(req.params.folderId),
+                name,
+            );
+            
+            if (unique === null || unique.length > 0) {
+                throw new Error(`File "${name}" already exists`);
+            }
+            return true;
+        })
+        .bail()
+        .isLength({ min: 3, max: 30 })
+        .withMessage(`Folder name ${lengthErr}`),
+
+    body('description')
+        .trim()
+        .optional({ values: 'falsy' })
+        .isAlphanumeric('en-US', { ignore: /[\s'._\-()&]/g })
+        .withMessage(`File description ${alphaNumericErr}`)
+        .bail()
+        .isLength({ min: 3, max: 50 })
+        .withMessage(`File description ${descLengthErr}`),
+
+    body('visibility').custom(async (value) => {
+        let valid;
+
+        if (!Number.isInteger(Number(value))) {
+            throw new Error(`Visibility option format is invalid!`);
+        }
+
+        valid = await isValidVisibilityId(Number(value));
+
+        if (!valid) {
+            throw new Error(`Visibility option doesn't exist!`);
+        }
+
+        return true;
+    }),
+];
+
+export { validateSignup, validateFolder, validateFile };
