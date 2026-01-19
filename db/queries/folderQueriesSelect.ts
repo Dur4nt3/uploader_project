@@ -22,6 +22,45 @@ export async function getFilesByFolderId(folderId: number) {
     return files;
 }
 
+export async function getFileByFolderIdAndFileId(
+    folderId: number,
+    fileId: number,
+) {
+    let file;
+
+    try {
+        file = await prisma.file.findUniqueOrThrow({
+            where: {
+                folderId,
+                fileId,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+
+    return file;
+}
+
+export async function getFileByFolderIdAndName(folderId: number, name: string) {
+    let file;
+
+    try {
+        file = await prisma.file.findFirst({
+            where: {
+                folderId,
+                name,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+
+    return file;
+}
+
 // ------------ SELECT QUERIES ------------
 
 // ------------ SELECT QUERIES (VALIDATION ONLY) ------------

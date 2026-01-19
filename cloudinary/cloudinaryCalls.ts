@@ -19,3 +19,15 @@ export async function cloudinaryUploadImage(
 
     return uploadResult;
 }
+
+export async function cloudinaryRenameImage(oldName: string, newName: string, username: string, folderId: number) {
+    const oldNameFull = `${username}-${folderId}-${oldName}`;
+    const newNameFull = `${username}-${folderId}-${newName}`;
+
+    const renameResult = await cloudinary.uploader.rename(oldNameFull, newNameFull).then(result => result).catch((error) => {
+        console.log(error);
+        throw new Error('Couldn\'t rename image');
+    })
+
+    return renameResult;
+}

@@ -8,7 +8,10 @@ import {
     getFolderByUserIdAndFolderId,
     getAllVisibilityOptions,
 } from '../db/queries/indexQueriesSelect';
-import { getFilesByFolderId } from '../db/queries/folderQueriesSelect';
+import {
+    getFilesByFolderId,
+    getFileByFolderIdAndFileId,
+} from '../db/queries/folderQueriesSelect';
 
 export async function controllerGetFolder(req: Request, res: Response) {
     // For TypeScript
@@ -34,8 +37,6 @@ export async function controllerGetFolder(req: Request, res: Response) {
 }
 
 export async function controllerGetCreateFile(req: Request, res: Response) {
-    // For TypeScript
-    // Asserts that req.user isn't undefined
     if (!req.isAuthenticated()) {
         return renderError401(res);
     }
@@ -54,4 +55,36 @@ export async function controllerGetCreateFile(req: Request, res: Response) {
     const options = await getAllVisibilityOptions();
 
     return res.render('folder/create-file', { folder, options });
+}
+
+export async function controllerGetEditFile(req: Request, res: Response) {
+    
+    if (!req.isAuthenticated()) {
+        return renderError401(res);
+    }
+    
+    const checkResults = await folderChecks(req);
+    
+    if (checkResults !== null) {
+        return checkResults(res);
+    }
+    
+    const folder = await getFolderByUserIdAndFolderId(
+        req.user.userId,
+        Number(req.params.folderId),
+    );
+    
+    const options = await getAllVisibilityOptions();
+    
+    const file = await getFileByFolderIdAndFileId(
+        // @ts-ignore
+        folder?.folderId,
+        Number(req.params.fileId),
+    );
+    
+    if (file === null) {
+        return renderError404(res);
+    }
+
+    return res.render('folder/edit-file', { folder, file, options });
 }

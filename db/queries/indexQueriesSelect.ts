@@ -111,7 +111,10 @@ export async function isUserFolderUnique(userId: number, name: string) {
     const folder = await prisma.folder.findMany({
         where: {
             userId: userId,
-            name: name,
+            name: {
+                equals: name,
+                mode: 'insensitive',
+            },
         },
     });
 
