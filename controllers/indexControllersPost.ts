@@ -27,6 +27,10 @@ import {
     isUserAllowToCreateFolder,
 } from '../db/queries/indexQueriesSelect';
 
+import { getFilesByFolderId } from '../db/queries/folderQueriesSelect';
+
+import { cloudinaryDeleteMultipleImages } from '../cloudinary/cloudinaryCalls';
+
 function controllerPassportLogin(
     req: Request,
     res: Response,
@@ -252,6 +256,19 @@ export async function controllerPostDeleteFolder(req: Request, res: Response) {
     );
 
     if (isOwner === null) {
+        return renderError500(res);
+    }
+
+    const allFiles = await getFilesByFolderId(isOwner.folderId);
+
+    if (allFiles === null) {
+        return renderError500(res);
+    }
+
+    try {
+        await cloudinaryDeleteMultipleImages(allFiles, req.user.username, isOwner.folderId);
+    } catch (error) {
+        console.error(error);
         return renderError500(res);
     }
 

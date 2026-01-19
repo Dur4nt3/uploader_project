@@ -57,34 +57,60 @@ export async function controllerGetCreateFile(req: Request, res: Response) {
     return res.render('folder/create-file', { folder, options });
 }
 
-export async function controllerGetEditFile(req: Request, res: Response) {
-    
+async function fileActionsChecks(req: Request, res: Response) {
     if (!req.isAuthenticated()) {
-        return renderError401(res);
+        renderError401(res);
+        return false;
     }
-    
+
     const checkResults = await folderChecks(req);
-    
+
     if (checkResults !== null) {
-        return checkResults(res);
+        checkResults(res);
+        return false;
     }
-    
+
     const folder = await getFolderByUserIdAndFolderId(
         req.user.userId,
         Number(req.params.folderId),
     );
-    
+
     const options = await getAllVisibilityOptions();
-    
+
     const file = await getFileByFolderIdAndFileId(
         // @ts-ignore
         folder?.folderId,
         Number(req.params.fileId),
     );
-    
+
     if (file === null) {
-        return renderError404(res);
+        renderError404(res);
+        return false;
     }
 
+    return { folder, file, options };
+}
+
+export async function controllerGetEditFile(req: Request, res: Response) {
+    const checkResults = await fileActionsChecks(req, res);
+
+    if (checkResults === false) {
+        return;
+    }
+
+    const { folder, file, options } = checkResults;
+
     return res.render('folder/edit-file', { folder, file, options });
+}
+
+export async function controllerGetDeleteFile(req: Request, res: Response) {
+    const checkResults = await fileActionsChecks(req, res);
+
+    if (checkResults === false) {
+        return;
+    }
+
+    const { folder, file, options } = checkResults;
+
+    return res.render('folder/delete-file', { folder, file, options });
 }
