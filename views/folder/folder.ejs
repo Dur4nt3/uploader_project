@@ -16,7 +16,7 @@
 <body>
     <header class="home-header">
         <h1><%= locals.folder.name %></h1>
-        <h2><%= locals.folder.description %></h2>
+        <h2><%= locals.folder.description || 'Blank Description' %></h2>
     </header>
 
     <main class="folder-main">

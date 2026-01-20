@@ -3,6 +3,10 @@ import type { Request, Response } from 'express';
 import { renderError401, renderError404 } from './errorsUtilities';
 import { getFolderByUserIdAndFolderId } from '../../db/queries/indexQueriesSelect';
 
+type authenticatedReq = Request & {
+    user: Express.User
+}
+
 export default async function folderChecks(req: Request) {
     if (!req.isAuthenticated()) {
         return renderError401;
@@ -29,3 +33,5 @@ export default async function folderChecks(req: Request) {
     // and there's no need to execute a callback
     return null;
 }
+
+export function assumeAuthenticated(req: Request): asserts req is authenticatedReq {}

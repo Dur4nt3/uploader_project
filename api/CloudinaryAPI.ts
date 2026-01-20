@@ -14,9 +14,25 @@ import type {
 
 export default class CloudinaryAPI extends ImageAPI {
     async fetch(fetchData: cloudinaryFetchData) {
-        const { username, folderId, fileName } = fetchData;
+        const { username, folderId, fileName, uploadType } = fetchData;
 
         const publicId = `${username}-${folderId}-${fileName}`;
+
+        let imageUrl;
+
+        try {
+            imageUrl = cloudinary.url(publicId, {
+            type: uploadType,
+            sign_url: true,
+            fetch_format: 'auto',
+            quality: 'auto'
+        })
+        } catch (error) {
+            console.error(error);
+            throw new Error("Couldn't create image url!");
+        }
+
+        return imageUrl;
     }
 
     async upload(uploadData: cloudinaryUploadData) {
@@ -69,12 +85,12 @@ export default class CloudinaryAPI extends ImageAPI {
     }
 
     async remove(removeData: cloudinaryRemoveData) {
-        const { username, folderId, fileName } = removeData;
+        const { username, folderId, fileName, uploadType } = removeData;
 
         const publicId = `${username}-${folderId}-${fileName}`;
 
         const deletionResult = await cloudinary.uploader
-            .destroy(publicId)
+            .destroy(publicId, { type: uploadType, invalidate: true })
             .then((result) => {
                 if (result.result === 'not found') {
                     throw new Error('Image not found!');
@@ -94,7 +110,7 @@ export default class CloudinaryAPI extends ImageAPI {
         for (const file of files) {
             const publicId = `${username}-${folderId}-${file.name}`;
             const deletionResult = await cloudinary.uploader
-                .destroy(publicId)
+                .destroy(publicId, { type: file.uploadType, invalidate: true })
                 .then((result) => {
                     if (result.result === 'not found') {
                         throw new Error('Image not found!');

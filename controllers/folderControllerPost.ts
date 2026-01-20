@@ -292,12 +292,15 @@ export async function controllerPostDeleteFile(req: Request, res: Response) {
 
     const { folder, file } = checkResults;
 
+    const isPrivate = await isVisibilityPrivate(file.visibilityId);
+
     const removeData: cloudinaryRemoveData = {
         // @ts-ignore
         username: req.user?.username,
         // @ts-ignore
         folderId: folder?.folderId,
         fileName: file.name,
+        uploadType: isPrivate === true ? 'authenticated' : 'upload'
     };
 
     try {

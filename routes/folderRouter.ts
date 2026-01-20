@@ -11,6 +11,7 @@ import {
     controllerGetCreateFile,
     controllerGetEditFile,
     controllerGetDeleteFile,
+    controllerGetFile,
 } from '../controllers/folderControllersGet';
 import {
     controllerPostCreateFile,
@@ -26,9 +27,12 @@ folderRouter.get('/:folderId', controllerGetFolder);
 
 folderRouter.get('/:folderId/create-file', controllerGetCreateFile);
 
+folderRouter.get('/:folderId/file/:fileId', controllerGetFile);
+
 folderRouter.get('/:folderId/edit-file/:fileId', controllerGetEditFile);
 
 folderRouter.get('/:folderId/delete-file/:fileId', controllerGetDeleteFile);
+
 
 // ------------ GET ROUTES ------------
 

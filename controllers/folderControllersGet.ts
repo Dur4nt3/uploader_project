@@ -1,30 +1,37 @@
 import type { Request, Response } from 'express';
 
-import { renderError401, renderError404 } from './utilities/errorsUtilities';
+import {
+    renderError401,
+    renderError404,
+    renderError500,
+} from './utilities/errorsUtilities';
 
-import folderChecks from './utilities/folderChecks';
+import folderChecks, { assumeAuthenticated } from './utilities/folderChecks';
 
 import {
     getFolderByUserIdAndFolderId,
     getAllVisibilityOptions,
+    isVisibilityPrivate,
 } from '../db/queries/indexQueriesSelect';
 import {
     getFilesByFolderId,
     getFileByFolderIdAndFileId,
 } from '../db/queries/folderQueriesSelect';
 
-export async function controllerGetFolder(req: Request, res: Response) {
-    // For TypeScript
-    // Asserts that req.user isn't undefined
-    if (!req.isAuthenticated()) {
-        return renderError401(res);
-    }
+import type { cloudinaryFetchData } from '../types/cloudinaryRequiredData';
 
+import CloudinaryAPI from '../api/CloudinaryAPI';
+
+const imageAPIProvider = new CloudinaryAPI();
+
+export async function controllerGetFolder(req: Request, res: Response) {
     const checkResults = await folderChecks(req);
 
     if (checkResults !== null) {
         return checkResults(res);
     }
+
+    assumeAuthenticated(req);
 
     const folder = await getFolderByUserIdAndFolderId(
         req.user.userId,
@@ -37,15 +44,13 @@ export async function controllerGetFolder(req: Request, res: Response) {
 }
 
 export async function controllerGetCreateFile(req: Request, res: Response) {
-    if (!req.isAuthenticated()) {
-        return renderError401(res);
-    }
-
     const checkResults = await folderChecks(req);
 
     if (checkResults !== null) {
         return checkResults(res);
     }
+
+    assumeAuthenticated(req);
 
     const folder = await getFolderByUserIdAndFolderId(
         req.user.userId,
@@ -125,5 +130,30 @@ export async function controllerGetFile(req: Request, res: Response) {
         return;
     }
 
+    assumeAuthenticated(req);
+
     const { folder, file } = checkResults;
+
+    const isPrivate = await isVisibilityPrivate(file.visibilityId);
+
+    const uploadType = isPrivate === true ? 'authenticated' : 'upload';
+
+    const fetchData: cloudinaryFetchData = {
+        username: req.user?.username,
+        // @ts-ignore
+        folderId: folder?.folderId,
+        fileName: file.name,
+        uploadType
+    }
+
+    let image;
+
+    try {
+        image = await imageAPIProvider.fetch(fetchData);
+    } catch (error) {
+        console.error(error);
+        return renderError500(res);
+    }
+
+    res.render('folder/view-file', { folder, file, image });
 }

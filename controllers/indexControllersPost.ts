@@ -25,6 +25,7 @@ import {
     getAllVisibilityOptions,
     getFolderByUserIdAndFolderId,
     isUserAllowToCreateFolder,
+    isVisibilityPrivate,
 } from '../db/queries/indexQueriesSelect';
 
 import { getFilesByFolderId } from '../db/queries/folderQueriesSelect';
@@ -269,17 +270,35 @@ export async function controllerPostDeleteFolder(req: Request, res: Response) {
         return renderError500(res);
     }
 
-    const removeMultipleData: cloudinaryRemoveMultipleData = {
-        username: req.user.username,
-        folderId: isOwner.folderId,
-        files: allFiles
-    }
+    if (allFiles.length > 0) {
 
-    try {
-        await imageAPIProvider.removeMultiple(removeMultipleData);
-    } catch (error) {
-        console.error(error);
-        return renderError500(res);
+        // @ts-ignore
+        const isPrivate = await isVisibilityPrivate(allFiles[0]?.visibilityId);
+        const uploadRefSame = isPrivate === true ? 'authenticated' : 'upload';
+        const uploadRefDiff = uploadRefSame === 'authenticated' ? 'upload' : 'authenticated';
+
+        const allFilesNew: any[] = [];
+
+        for (const file of allFiles) {
+            const newFile: any = { ...file };
+            // @ts-ignore
+            newFile.uploadType = file.visibilityId === allFiles[0].visibilityId ? uploadRefSame : uploadRefDiff;
+            
+            allFilesNew.push(newFile);
+        }
+
+        const removeMultipleData: cloudinaryRemoveMultipleData = {
+            username: req.user.username,
+            folderId: isOwner.folderId,
+            files: allFilesNew,
+        };
+
+        try {
+            await imageAPIProvider.removeMultiple(removeMultipleData);
+        } catch (error) {
+            console.error(error);
+            return renderError500(res);
+        }
     }
 
     const deleteStatus = await deleteFolder(

@@ -1,7 +1,8 @@
 export interface cloudinaryFetchData {
-    username: string,
-    folderId: string,
-    fileName: string,
+    username: string;
+    folderId: string;
+    fileName: string;
+    uploadType: string;
 }
 
 export interface cloudinaryUploadData {
@@ -25,6 +26,7 @@ export interface cloudinaryRemoveData {
     username: string;
     folderId: number;
     fileName: string;
+    uploadType: string;
 }
 
 export interface cloudinaryRemoveMultipleData {
