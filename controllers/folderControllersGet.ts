@@ -57,6 +57,9 @@ export async function controllerGetCreateFile(req: Request, res: Response) {
     return res.render('folder/create-file', { folder, options });
 }
 
+// Ensures that:
+// 1) the file and folder exist (includes validating id formats)
+// 2) the file and folder belong to the user
 async function fileActionsChecks(req: Request, res: Response) {
     if (!req.isAuthenticated()) {
         renderError401(res);
@@ -113,4 +116,14 @@ export async function controllerGetDeleteFile(req: Request, res: Response) {
     const { folder, file, options } = checkResults;
 
     return res.render('folder/delete-file', { folder, file, options });
+}
+
+export async function controllerGetFile(req: Request, res: Response) {
+    const checkResults = await fileActionsChecks(req, res);
+
+    if (checkResults === false) {
+        return;
+    }
+
+    const { folder, file } = checkResults;
 }

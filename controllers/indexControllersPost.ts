@@ -29,7 +29,11 @@ import {
 
 import { getFilesByFolderId } from '../db/queries/folderQueriesSelect';
 
-import { cloudinaryDeleteMultipleImages } from '../cloudinary/cloudinaryCalls';
+import type { cloudinaryRemoveMultipleData } from '../types/cloudinaryRequiredData';
+
+import CloudinaryAPI from '../api/CloudinaryAPI';
+
+const imageAPIProvider = new CloudinaryAPI();
 
 function controllerPassportLogin(
     req: Request,
@@ -265,8 +269,14 @@ export async function controllerPostDeleteFolder(req: Request, res: Response) {
         return renderError500(res);
     }
 
+    const removeMultipleData: cloudinaryRemoveMultipleData = {
+        username: req.user.username,
+        folderId: isOwner.folderId,
+        files: allFiles
+    }
+
     try {
-        await cloudinaryDeleteMultipleImages(allFiles, req.user.username, isOwner.folderId);
+        await imageAPIProvider.removeMultiple(removeMultipleData);
     } catch (error) {
         console.error(error);
         return renderError500(res);

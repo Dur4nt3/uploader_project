@@ -14,12 +14,12 @@ import {
     getFieldErrorMsg,
     renderError500,
     renderError401,
-    renderError404,
 } from './utilities/errorsUtilities';
 
 import {
     getAllVisibilityOptions,
     getFolderByUserIdAndFolderId,
+    isVisibilityPrivate,
 } from '../db/queries/indexQueriesSelect';
 
 import {
@@ -30,15 +30,15 @@ import { createFile } from '../db/queries/folderQueriesInsert';
 import { updateFile } from '../db/queries/folderQueriesUpdate';
 import { deleteFile } from '../db/queries/folderQueriesDelete';
 
+import type {
+    cloudinaryUploadData,
+    cloudinaryEditData,
+    cloudinaryRemoveData,
+} from '../types/cloudinaryRequiredData';
+
 import CloudinaryAPI from '../api/CloudinaryAPI';
 
-import {
-    cloudinaryUploadImage,
-    cloudinaryRenameImage,
-    cloudinaryDeleteImage,
-} from '../cloudinary/cloudinaryCalls';
-
-const instanceOfAPI = new CloudinaryAPI();
+const imageAPIProvider = new CloudinaryAPI();
 
 const multerStorage = multer.diskStorage({
     destination: 'uploads/',
@@ -117,30 +117,36 @@ const controllerPostCreateFile: any = [
             });
         }
 
-        let uploadResult;
-
         if (req.file?.path === undefined) {
             return renderError500(res);
         }
 
-        try {
-            uploadResult = await cloudinaryUploadImage(
-                req.file?.path,
-                req.user.username,
-                // @ts-ignore
-                // Check is already done within folderChecks
-                folder.folderId,
-                req.body.name,
-            );
+        const { name, description, visibility } = matchedData(req);
 
+        const isPrivate = await isVisibilityPrivate(Number(visibility));
+
+        if (isPrivate === null) {
+            return renderError500(res);
+        }
+
+        const uploadData: cloudinaryUploadData = {
+            filePath: req.file.path,
+            username: req.user.username,
+            // @ts-ignore
+            // Check is already done within folderChecks
+            folderId: folder.folderId,
+            fileName: req.body.name,
+            authenticated: isPrivate,
+        };
+
+        try {
+            await imageAPIProvider.upload(uploadData);
             await removeAllUploads();
         } catch (error) {
             console.error(error);
             await removeAllUploads();
             return renderError500(res);
         }
-
-        const { name, description, visibility } = matchedData(req);
 
         const creationStatus = await createFile(
             name,
@@ -230,19 +236,30 @@ const controllerPostEditFile: any = [
 
         const { name, description, visibility } = matchedData(req);
 
-        if (name !== file.name) {
+        const currentlyPrivate = await isVisibilityPrivate(file.visibilityId);
+        const isPrivate = await isVisibilityPrivate(Number(visibility));
+
+        if (isPrivate === null || currentlyPrivate === null) {
+            return renderError500(res);
+        }
+
+        const editData: cloudinaryEditData = {
+            // @ts-ignore
+            username: req.user?.username,
+            // @ts-ignore
+            folderId: folder?.folderId,
+            oldName: file.name,
+            newName: name,
+            updatedType: isPrivate === true ? 'authenticated' : 'upload',
+            currentType: currentlyPrivate === true ? 'authenticated' : 'upload',
+        };
+
+        if (
+            name !== file.name ||
+            editData.updatedType !== editData.currentType
+        ) {
             try {
-                await cloudinaryRenameImage(
-                    file.name,
-                    name,
-                    // @ts-ignore
-                    // Impossible, folderInitialChecks guarantees that it isn't
-                    req.user.username,
-                    // @ts-ignore
-                    // It is IMPOSSIBLE for folder to be null here
-                    // folderChecks guarantees it is NOT NULL!
-                    folder.folderId,
-                );
+                await imageAPIProvider.edit(editData);
             } catch (error) {
                 console.error(error);
                 return renderError500(res);
@@ -275,16 +292,16 @@ export async function controllerPostDeleteFile(req: Request, res: Response) {
 
     const { folder, file } = checkResults;
 
+    const removeData: cloudinaryRemoveData = {
+        // @ts-ignore
+        username: req.user?.username,
+        // @ts-ignore
+        folderId: folder?.folderId,
+        fileName: file.name,
+    };
+
     try {
-        // As mentioned in previous controllers
-        // The definition of req.user and folder
-        // are already confirmed in the above check
-        await cloudinaryDeleteImage(
-            file.name,
-            // @ts-ignore
-            req.user?.username,
-            folder?.folderId,
-        );
+        await imageAPIProvider.remove(removeData);
     } catch (error) {
         console.error(error);
         return renderError500(res);

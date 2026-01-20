@@ -357,6 +357,10 @@ body:has(.error-notice) {
     font-weight: 600;
 }
 
+.file-name {
+    text-transform: none;
+}
+
 .folder-subtext,
 .file-subtext {
     text-transform: capitalize;
@@ -412,6 +416,18 @@ body:has(.error-notice) {
 .delete-folder-link:hover,
 .delete-file-link:hover {
     background-color: var(--error-background);
+}
+
+.file-image-cont {
+    height: 285px;
+    width: 285px;
+
+    border: 1px solid var(--main-border-color);
+    border-radius: 0.35rem;
+}
+
+.file-image-cont img {
+    object-fit: contain;
 }
 
 @media (min-width: 40rem) {

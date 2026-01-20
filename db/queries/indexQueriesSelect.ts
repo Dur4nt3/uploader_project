@@ -141,4 +141,18 @@ export async function isUserAllowToCreateFolder(userId: number) {
     return userFolders.folders.length < 10;
 }
 
+export async function isVisibilityPrivate(visibilityId: number) {
+    const visibility = await prisma.visibility.findUnique({
+        where: {
+            visibilityId
+        }
+    })
+
+    if (visibility === null) {
+        return null;
+    }
+
+    return visibility.name === 'private';
+}
+
 // ------------ SELECT QUERIES (VALIDATION ONLY) ------------
