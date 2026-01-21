@@ -12,6 +12,7 @@ import './cloudinary/cloudinaryConfig';
 
 import indexRouter from './routes/indexRouter';
 import folderRouter from './routes/folderRouter';
+import shareRouter from './routes/shareRouter';
 
 import { renderError404 } from './controllers/utilities/errorsUtilities';
 
@@ -52,6 +53,7 @@ app.use(passport.session());
 
 app.use('/', indexRouter);
 app.use('/folder', folderRouter);
+app.use('/share', shareRouter);
 
 // Error middleware
 app.use('/', (req, res) => {

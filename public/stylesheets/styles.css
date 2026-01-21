@@ -62,17 +62,21 @@ a {
 }
 
 footer {
+    width: 100%;
     padding: 0.75rem;
 }
 
 .footer-links-cont {
-    display: flex;
+    width: 100%;
     gap: 1rem;
+    
+    display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.footer-links-cont > a {
+.footer-links-cont > a,
+.footer-links-cont > button {
     display: grid;
     place-items: center;
 
@@ -87,12 +91,55 @@ footer {
     transition: 0.2s ease-in-out;
 }
 
-.footer-links-cont > a > img {
+.footer-links-cont > button {
+    position: relative;
+    background: transparent;
+}
+
+.footer-links-cont > a > img,
+.footer-links-cont > button > img {
     opacity: 0.85;
 }
 
-.footer-links-cont > a:hover {
+.footer-links-cont > a:hover,
+.footer-links-cont > button:hover {
     transform: translateY(-0.15rem);
+}
+
+.footer-links-cont > button::before {
+    content: 'Copied to Clipboard!';
+    white-space: nowrap;
+    position: absolute;
+    top: -2.25rem;
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    padding: 0.25rem;
+    background-color: var(--main-button-color);
+    color: var(--text-color);
+    font-size: var(--fs-sm);
+    border-radius: 0.35rem;
+    
+    transition: 0.2s ease-in-out 2s;
+}
+
+.footer-links-cont > button:active::before {
+    content: 'Copied to Clipboard!';
+    white-space: nowrap;
+    position: absolute;
+    top: -2.25rem;
+    left: 50%;
+    transform: translateX(-50%) scale(1);
+    padding: 0.25rem;
+    background-color: var(--main-button-color);
+    color: var(--text-color);
+    font-size: var(--fs-sm);
+    border-radius: 0.35rem;
+    
+    transition: 0s ease-in-out 0s;
+}
+
+.copy-link-value {
+    display: none;
 }
 
 body:has(.error-notice) {
@@ -374,6 +421,10 @@ body:has(.error-notice) {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 0.5rem;
+}
+
+.shared-file .file-actions {
+    grid-template-columns: 1fr;
 }
 
 .folder-actions > a,

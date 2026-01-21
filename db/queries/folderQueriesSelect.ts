@@ -61,6 +61,31 @@ export async function getFileByFolderIdAndName(folderId: number, name: string) {
     return file;
 }
 
+export async function getFileByFileId(fileId: number) {
+    let file;
+
+    try {
+        file = await prisma.file.findUnique({
+            where: {
+                fileId,
+            },
+            include: {
+                folder: {
+                    include: {
+                        owner: true
+                    }
+                },
+                visibility: true,
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+
+    return file;
+}
+
 // ------------ SELECT QUERIES ------------
 
 // ------------ SELECT QUERIES (VALIDATION ONLY) ------------

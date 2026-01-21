@@ -23,59 +23,34 @@
         <% if (locals.files === null || locals.files.length === 0) { %>
             <div class="no-files-notice">
                 <div class="file-icon-cont">
-                    <img src="/media/icons/create-file-blue.svg">
+                    <img src="/media/icons/no-file.svg">
                 </div>
                     
                 <h2 class="notice-heading">No files yet!</h2>
                 <p class="notice-subtext">
-                    Host your first file and share it.
+                    This shared folder has no files.
                 </p>
 
                 <div class="action-links-cont">
-                    <a href="<%= `/folder/${folder.folderId}/create-file` %>" class="create-file-link">
-                        <img src="/media/icons/create-file-white.svg">
-                        New file
+                    <a href="/" class="create-file-link">
+                        <img src="/media/icons/home.svg">
+                        Return Home
                     </a>
                 </div>
             </div>
         <% } else { %>
             <div class="all-files-cont">
-                    <%- include("../partials/file-container.ejs", { files: locals.files, folderId: folder.folderId }) %>
+                    <%- include("../partials/shared-file-container.ejs", { files: locals.files, folderId: folder.folderId }) %>
             </div>
         <% } %>
     </main>
 
     <footer>
         <div class="footer-links-cont">
-            <a href="/logout">
-                <img src="/media/icons/logout.svg" alt="logout">
-            </a>
-
-            <a href="<%= `/folder/${folder.folderId}/create-file` %>">
-                <img src="/media/icons/create-file-white.svg" alt="create a folder">
-            </a>
-
             <a href="/">
                 <img src="/media/icons/home.svg" alt="homepage">
             </a>
-
-            <% if (locals.isPublic === true) { %>
-                <button class="share-button" onclick="copyToClipboard()">
-                    <img src="/media/icons/share.svg" alt="share this folder">
-                </button>
-
-                <input class="copy-link-value" value="<%= `${baseUrl}/share/folder/${folder.folderId}` %>">
-            <% } %>
         </div>
     </footer>
-
-    <% if (locals.isPublic === true) { %>
-        <script>
-            function copyToClipboard() {
-                const copyText = document.querySelector('.copy-link-value');
-                navigator.clipboard.writeText(copyText.value);
-            }
-        </script>
-    <% } %>
 </body>
 </html>

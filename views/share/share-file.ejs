@@ -29,27 +29,10 @@
 
     <footer>
         <div class="footer-links-cont">
-            <a href="<%= `/folder/${folder.folderId}` %>">
-                <img src="/media/icons/back.svg" alt="go back">
+            <a href="/">
+                <img src="/media/icons/home.svg" alt="homepage">
             </a>
-
-            <% if (locals.isPublic === true) { %>
-                <button class="share-button" onclick="copyToClipboard()">
-                    <img src="/media/icons/share.svg" alt="share this folder">
-                </button>
-
-                <input class="copy-link-value" value="<%= `${baseUrl}/share/file/${file.fileId}` %>">
-            <% } %>
         </div>
     </footer>
-
-    <% if (locals.isPublic === true) { %>
-        <script>
-            function copyToClipboard() {
-                const copyText = document.querySelector('.copy-link-value');
-                navigator.clipboard.writeText(copyText.value);
-            }
-        </script>
-    <% } %>
 </body>
 </html>

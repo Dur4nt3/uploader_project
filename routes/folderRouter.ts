@@ -17,7 +17,7 @@ import {
     controllerPostCreateFile,
     controllerPostEditFile,
     controllerPostDeleteFile,
-} from '../controllers/folderControllerPost';
+} from '../controllers/folderControllersPost';
 
 const folderRouter = Router();
 

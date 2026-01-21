@@ -41,8 +41,6 @@ export default class CloudinaryAPI extends ImageAPI {
 
         const public_id = `${username}-${folderId}-${fileName}`;
 
-        console.log(authenticated);
-
         const uploadResult = await cloudinary.uploader
             .upload(filePath, {
                 public_id,

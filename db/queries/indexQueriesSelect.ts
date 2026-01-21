@@ -91,6 +91,32 @@ export async function getFolderByUserIdAndName(userId: number, name: string) {
     return folder;
 }
 
+export async function getFolderByFolderId(folderId: number) {
+    let folder;
+
+    try {
+        folder = await prisma.folder.findUnique({
+            where: {
+                folderId,
+            },
+
+            include: {
+                visibility: true,
+                files: {
+                    include: {
+                        visibility: true
+                    }
+                },
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+
+    return folder;
+}
+
 export async function getAllVisibilityOptions() {
     const options = await prisma.visibility.findMany();
 
@@ -141,18 +167,46 @@ export async function isUserAllowToCreateFolder(userId: number) {
     return userFolders.folders.length < 10;
 }
 
+export async function isVisibilityMatching(visibilityId: number, name: string) {
+    const visibility = await prisma.visibility.findUnique({
+        where: {
+            visibilityId,
+        },
+    });
+
+    if (visibility === null) {
+        return null;
+    }
+
+    return visibility.name === name;
+}
+
 export async function isVisibilityPrivate(visibilityId: number) {
     const visibility = await prisma.visibility.findUnique({
         where: {
-            visibilityId
-        }
-    })
+            visibilityId,
+        },
+    });
 
     if (visibility === null) {
         return null;
     }
 
     return visibility.name === 'private';
+}
+
+export async function isVisibilityPublic(visibilityId: number) {
+    const visibility = await prisma.visibility.findUnique({
+        where: {
+            visibilityId,
+        },
+    });
+
+    if (visibility === null) {
+        return null;
+    }
+
+    return visibility.name === 'public';
 }
 
 // ------------ SELECT QUERIES (VALIDATION ONLY) ------------

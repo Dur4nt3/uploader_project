@@ -12,6 +12,7 @@ import {
     getFolderByUserIdAndFolderId,
     getAllVisibilityOptions,
     isVisibilityPrivate,
+    isVisibilityPublic
 } from '../db/queries/indexQueriesSelect';
 import {
     getFilesByFolderId,
@@ -40,7 +41,12 @@ export async function controllerGetFolder(req: Request, res: Response) {
 
     const files = await getFilesByFolderId(Number(req.params.folderId));
 
-    return res.render('folder/folder', { folder, files });
+    // @ts-ignore
+    const isPublic = await isVisibilityPublic(folder?.visibilityId)
+    
+    const baseUrl = req.host;
+
+    return res.render('folder/folder', { folder, files, isPublic, baseUrl });
 }
 
 export async function controllerGetCreateFile(req: Request, res: Response) {
@@ -155,5 +161,10 @@ export async function controllerGetFile(req: Request, res: Response) {
         return renderError500(res);
     }
 
-    res.render('folder/view-file', { folder, file, image });
+    // @ts-ignore
+    const isPublic = await isVisibilityPublic(file?.visibilityId)
+    
+    const baseUrl = req.host;
+
+    res.render('folder/view-file', { folder, file, image, isPublic, baseUrl });
 }

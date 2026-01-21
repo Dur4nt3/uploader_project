@@ -1,0 +1,19 @@
+<% if (locals.files) { %>
+    <% for (const file of files) { %>
+        <div class="file-cont shared-file">
+            <div class="file-info">
+                <img src="/media/icons/file-blue.svg">
+                <div class="file-text">
+                    <h2 class="file-name"><%= file.name %></h2>
+                    <p class="file-subtext">
+                        <%= file.visibility.name %>
+                    </p>
+                </div>
+            </div>
+
+            <div class="file-actions">
+                <a href="<%= `/share/file/${file.fileId}` %>" class="view-file-link">Open</a>
+            </div>
+        </div>
+    <% } %>
+<% } %>
