@@ -71,6 +71,9 @@ export async function getFolderByUserIdAndFolderId(
                 folderId,
                 userId,
             },
+            include: {
+                visibility: true
+            }
         });
     } catch (error) {
         console.error(error);

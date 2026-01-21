@@ -34,6 +34,9 @@ export async function getFileByFolderIdAndFileId(
                 folderId,
                 fileId,
             },
+            include: {
+                visibility: true,
+            }
         });
     } catch (error) {
         console.error(error);

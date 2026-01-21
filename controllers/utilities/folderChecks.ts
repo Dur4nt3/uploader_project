@@ -7,6 +7,13 @@ type authenticatedReq = Request & {
     user: Express.User
 }
 
+// This function verifies the following:
+// 1) The user is authenticated
+// 2) The user has provided the proper params
+// 3) The params are in the right format
+// 4) The folder exists
+// 5) The folder belongs to the user
+// 6) The folder returned has the correct properties
 export default async function folderChecks(req: Request) {
     if (!req.isAuthenticated()) {
         return renderError401;
@@ -16,21 +23,16 @@ export default async function folderChecks(req: Request) {
         return renderError404;
     }
 
-    // Checks:
-    // 1) Param: folderId is in the correct format
-    // 2) Folder exists
-    // 3) Folder belongs to the user
     const folder = await getFolderByUserIdAndFolderId(
         req.user.userId,
         Number(req.params.folderId),
     );
 
-    if (folder === null) {
+    if (folder === null || folder.visibility === undefined) {
         return renderError404;
     }
 
-    // Indicates that all checks have passed
-    // and there's no need to execute a callback
+    // No callback => all checks have passed
     return null;
 }
 

@@ -16,6 +16,7 @@ async function main() {
                         'Anyone can view this folder',
                 },
             ],
+            skipDuplicates: true,
         });
     } catch (error) {
         console.error(

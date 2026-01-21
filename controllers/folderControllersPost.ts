@@ -190,7 +190,7 @@ async function fileActionsInitialChecks(req: Request, res: Response) {
         Number(req.params.fileId),
     );
 
-    if (file === null) {
+    if (file === null || file.visibility === undefined) {
         renderError500(res);
         return false;
     }
@@ -236,7 +236,7 @@ const controllerPostEditFile: any = [
 
         const { name, description, visibility } = matchedData(req);
 
-        const currentlyPrivate = await isVisibilityPrivate(file.visibilityId);
+        const currentlyPrivate = file.visibility.name === 'private';
         const isPrivate = await isVisibilityPrivate(Number(visibility));
 
         if (isPrivate === null || currentlyPrivate === null) {
@@ -292,7 +292,7 @@ export async function controllerPostDeleteFile(req: Request, res: Response) {
 
     const { folder, file } = checkResults;
 
-    const isPrivate = await isVisibilityPrivate(file.visibilityId);
+    const isPrivate = file.visibility.name === 'private';
 
     const removeData: cloudinaryRemoveData = {
         // @ts-ignore

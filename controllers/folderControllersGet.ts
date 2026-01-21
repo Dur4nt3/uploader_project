@@ -12,7 +12,7 @@ import {
     getFolderByUserIdAndFolderId,
     getAllVisibilityOptions,
     isVisibilityPrivate,
-    isVisibilityPublic
+    isVisibilityPublic,
 } from '../db/queries/indexQueriesSelect';
 import {
     getFilesByFolderId,
@@ -42,8 +42,8 @@ export async function controllerGetFolder(req: Request, res: Response) {
     const files = await getFilesByFolderId(Number(req.params.folderId));
 
     // @ts-ignore
-    const isPublic = await isVisibilityPublic(folder?.visibilityId)
-    
+    const isPublic = folder?.visibility.name === 'public';
+
     const baseUrl = req.host;
 
     return res.render('folder/folder', { folder, files, isPublic, baseUrl });
@@ -97,7 +97,7 @@ async function fileActionsChecks(req: Request, res: Response) {
         Number(req.params.fileId),
     );
 
-    if (file === null) {
+    if (file === null || file.visibility === undefined) {
         renderError404(res);
         return false;
     }
@@ -140,7 +140,7 @@ export async function controllerGetFile(req: Request, res: Response) {
 
     const { folder, file } = checkResults;
 
-    const isPrivate = await isVisibilityPrivate(file.visibilityId);
+    const isPrivate = file.visibility.name === 'private';
 
     const uploadType = isPrivate === true ? 'authenticated' : 'upload';
 
@@ -149,8 +149,8 @@ export async function controllerGetFile(req: Request, res: Response) {
         // @ts-ignore
         folderId: folder?.folderId,
         fileName: file.name,
-        uploadType
-    }
+        uploadType,
+    };
 
     let image;
 
@@ -161,10 +161,13 @@ export async function controllerGetFile(req: Request, res: Response) {
         return renderError500(res);
     }
 
-    // @ts-ignore
-    const isPublic = await isVisibilityPublic(file?.visibilityId)
-    
     const baseUrl = req.host;
 
-    res.render('folder/view-file', { folder, file, image, isPublic, baseUrl });
+    res.render('folder/view-file', {
+        folder,
+        file,
+        image,
+        isPublic: !isPrivate,
+        baseUrl,
+    });
 }
