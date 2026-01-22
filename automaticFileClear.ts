@@ -26,7 +26,7 @@ async function main() {
             },
         });
 
-        for (const file of result) {
+        await Promise.allSettled(result.map((file) => {
             const removeData: cloudinaryRemoveData = {
                 username: file.folder.owner.username,
                 folderId: file.folderId,
@@ -34,8 +34,11 @@ async function main() {
                 uploadType: file.visibility.name === 'private' ? 'authenticated' : 'upload'
             }
 
-            await imageAPIProvider.remove(removeData);
-        }
+            console.log(`${removeData.username}-${removeData.folderId}-${removeData.fileName} pending removal`);
+            return imageAPIProvider.remove(removeData);
+        }))
+
+        console.log('All old files removed from Cloudinary');
 
         const deleted = await prisma.file.deleteMany({
             where: {
@@ -44,17 +47,18 @@ async function main() {
                 },
             },
         });
+
+        console.log(`Deleted ${deleted.count} files from the database!`)
     } catch (error) {
         console.error(error);
     }
 }
 
 main()
-    .then(async () => {
-        await prisma.$disconnect();
-    })
     .catch(async (e) => {
         console.error(e);
+        process.exitCode = 1;
+    }).finally(async () => {
         await prisma.$disconnect();
-        process.exit(1);
+        process.exit();
     });
