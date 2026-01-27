@@ -30,11 +30,9 @@ import {
 
 import { getFilesByFolderId } from '../db/queries/folderQueriesSelect';
 
-import type { cloudinaryRemoveMultipleData } from '../types/cloudinaryRequiredData';
+import type { apiRemoveMultipleData } from '../types/apiRequiredData';
 
-import CloudinaryAPI from '../api/CloudinaryAPI';
-
-const imageAPIProvider = new CloudinaryAPI();
+import type ImageAPI from '../api/ImageAPI';
 
 function controllerPassportLogin(
     req: Request,
@@ -245,7 +243,7 @@ const controllerPostEditFolder: any = [
     },
 ];
 
-export async function controllerPostDeleteFolder(req: Request, res: Response) {
+export async function controllerPostDeleteFolder(req: Request, res: Response, apiProvider: ImageAPI) {
     if (!req.isAuthenticated()) {
         return renderError401(res);
     }
@@ -272,29 +270,14 @@ export async function controllerPostDeleteFolder(req: Request, res: Response) {
 
     if (allFiles.length > 0) {
 
-        // @ts-ignore
-        const isPrivate = await isVisibilityPrivate(allFiles[0]?.visibilityId);
-        const uploadRefSame = isPrivate === true ? 'authenticated' : 'upload';
-        const uploadRefDiff = uploadRefSame === 'authenticated' ? 'upload' : 'authenticated';
-
-        const allFilesNew: any[] = [];
-
-        for (const file of allFiles) {
-            const newFile: any = { ...file };
-            // @ts-ignore
-            newFile.uploadType = file.visibilityId === allFiles[0].visibilityId ? uploadRefSame : uploadRefDiff;
-            
-            allFilesNew.push(newFile);
-        }
-
-        const removeMultipleData: cloudinaryRemoveMultipleData = {
+        const removeMultipleData: apiRemoveMultipleData = {
             username: req.user.username,
             folderId: isOwner.folderId,
-            files: allFilesNew,
+            files: allFiles,
         };
 
         try {
-            await imageAPIProvider.removeMultiple(removeMultipleData);
+            await apiProvider.removeMultiple(removeMultipleData);
         } catch (error) {
             console.error(error);
             return renderError500(res);

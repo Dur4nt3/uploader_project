@@ -1,32 +1,39 @@
 import '../cloudinary/cloudinaryConfig';
 
 import ImageAPI from './ImageAPI';
+import PrepareCloudinaryData from './PrepareCloudinaryData';
+import ImageId from './ImageId';
 
 import { v2 as cloudinary } from 'cloudinary';
 
 import type {
-    cloudinaryFetchData,
-    cloudinaryUploadData,
-    cloudinaryRemoveData,
-    cloudinaryRemoveMultipleData,
-    cloudinaryEditData,
-} from '../types/cloudinaryRequiredData';
+    apiFetchData,
+    apiUploadData,
+    apiEditData,
+    apiRemoveData,
+    apiRemoveMultipleData,
+} from '../types/apiRequiredData';
 
 export default class CloudinaryAPI extends ImageAPI {
-    async fetch(fetchData: cloudinaryFetchData) {
-        const { username, folderId, fileName, uploadType } = fetchData;
+    constructor() {
+        super(new PrepareCloudinaryData());
+    }
 
-        const publicId = `${username}-${folderId}-${fileName}`;
+    async fetch(fetchData: apiFetchData) {
+        const cloudinaryData = this.dataConverter.prepareFetchData(fetchData);
+        const { username, folderId, fileName, uploadType } = cloudinaryData;
+
+        const publicId = ImageId.createId(username, folderId, fileName);
 
         let imageUrl;
 
         try {
             imageUrl = cloudinary.url(publicId, {
-            type: uploadType,
-            sign_url: true,
-            fetch_format: 'auto',
-            quality: 'auto'
-        })
+                type: uploadType,
+                sign_url: true,
+                fetch_format: 'auto',
+                quality: 'auto',
+            });
         } catch (error) {
             console.error(error);
             throw new Error("Couldn't create image url!");
@@ -35,15 +42,16 @@ export default class CloudinaryAPI extends ImageAPI {
         return imageUrl;
     }
 
-    async upload(uploadData: cloudinaryUploadData) {
+    async upload(uploadData: apiUploadData) {
+        const cloudinaryData = this.dataConverter.prepareUploadData(uploadData);
         const { filePath, username, folderId, fileName, authenticated } =
-            uploadData;
+            cloudinaryData;
 
-        const public_id = `${username}-${folderId}-${fileName}`;
+        const publicId = ImageId.createId(username, folderId, fileName);
 
         const uploadResult = await cloudinary.uploader
             .upload(filePath, {
-                public_id,
+                public_id: publicId,
                 type: authenticated === true ? 'authenticated' : 'upload',
             })
             .catch((error) => {
@@ -54,7 +62,9 @@ export default class CloudinaryAPI extends ImageAPI {
         return uploadResult;
     }
 
-    async edit(editData: cloudinaryEditData) {
+    async edit(editData: apiEditData) {
+        const cloudinaryData = this.dataConverter.prepareEditData(editData);
+
         const {
             username,
             folderId,
@@ -62,10 +72,10 @@ export default class CloudinaryAPI extends ImageAPI {
             newName,
             currentType,
             updatedType,
-        } = editData;
+        } = cloudinaryData;
 
-        const oldNameFull = `${username}-${folderId}-${oldName}`;
-        const newNameFull = `${username}-${folderId}-${newName}`;
+        const oldNameFull = ImageId.createId(username, folderId, oldName);
+        const newNameFull = ImageId.createId(username, folderId, newName);
 
         const editResult = await cloudinary.uploader
             .rename(oldNameFull, newNameFull, {
@@ -82,10 +92,11 @@ export default class CloudinaryAPI extends ImageAPI {
         return editResult;
     }
 
-    async remove(removeData: cloudinaryRemoveData) {
-        const { username, folderId, fileName, uploadType } = removeData;
+    async remove(removeData: apiRemoveData) {
+        const cloudinaryData = this.dataConverter.prepareRemoveData(removeData);
+        const { username, folderId, fileName, uploadType } = cloudinaryData;
 
-        const publicId = `${username}-${folderId}-${fileName}`;
+        const publicId = ImageId.createId(username, folderId, fileName);
 
         const deletionResult = await cloudinary.uploader
             .destroy(publicId, { type: uploadType, invalidate: true })
@@ -102,11 +113,14 @@ export default class CloudinaryAPI extends ImageAPI {
         return deletionResult;
     }
 
-    async removeMultiple(removeMultipleData: cloudinaryRemoveMultipleData) {
-        const { username, folderId, files } = removeMultipleData;
+    async removeMultiple(removeMultipleData: apiRemoveMultipleData) {
+        const cloudinaryData =
+            this.dataConverter.prepareRemoveMultipleData(removeMultipleData);
+        const { username, folderId, files } = cloudinaryData;
 
         for (const file of files) {
-            const publicId = `${username}-${folderId}-${file.name}`;
+            const publicId = ImageId.createId(username, folderId, file.name);
+
             const deletionResult = await cloudinary.uploader
                 .destroy(publicId, { type: file.uploadType, invalidate: true })
                 .then((result) => {

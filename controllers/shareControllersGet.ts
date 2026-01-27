@@ -8,11 +8,9 @@ import filterPrivate from './utilities/filterPrivate';
 
 import { renderError404, renderError500 } from './utilities/errorsUtilities';
 
-import type { cloudinaryFetchData } from '../types/cloudinaryRequiredData';
+import type { apiFetchData } from '../types/apiRequiredData';
 
-import CloudinaryAPI from '../api/CloudinaryAPI';
-
-const imageAPIProvider = new CloudinaryAPI();
+import type ImageAPI from '../api/ImageAPI';
 
 export async function controllerGetSharedFolder(req: Request, res: Response) {
     if (req.params.folderId === undefined) {
@@ -42,7 +40,7 @@ export async function controllerGetSharedFolder(req: Request, res: Response) {
     });
 }
 
-export async function controllerGetSharedFile(req: Request, res: Response) {
+export async function controllerGetSharedFile(req: Request, res: Response, apiProvider: ImageAPI) {
     if (req.params.fileId === undefined) {
         return renderError404(res);
     }
@@ -62,17 +60,17 @@ export async function controllerGetSharedFile(req: Request, res: Response) {
         return renderError404(res);
     }
 
-    const fetchData: cloudinaryFetchData = {
+    const fetchData: apiFetchData = {
         username: file.folder.owner.username,
         folderId: String(file.folderId),
         fileName: file.name,
-        uploadType: 'upload',
+        fileVisibility: file.visibility.name
     };
 
     let image;
 
     try {
-        image = await imageAPIProvider.fetch(fetchData);
+        image = await apiProvider.fetch(fetchData);
     } catch (error) {
         console.error(error);
         return renderError500(res);

@@ -20,6 +20,10 @@ import {
     controllerPostDeleteFolder,
 } from '../controllers/indexControllersPost';
 
+import CloudinaryAPI from '../api/CloudinaryAPI';
+
+const apiProvider = new CloudinaryAPI();
+
 const indexRouter = Router();
 
 // ------------ GET ROUTES ------------
@@ -54,7 +58,7 @@ indexRouter.post('/create-folder', controllerPostCreateFolder);
 
 indexRouter.post('/edit-folder/:folderId', controllerPostEditFolder);
 
-indexRouter.post('/delete-folder/:folderId', controllerPostDeleteFolder);
+indexRouter.post('/delete-folder/:folderId', (req, res) => controllerPostDeleteFolder(req, res, apiProvider));
 
 // ------------ POST ROUTES ------------
 

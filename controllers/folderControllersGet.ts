@@ -19,11 +19,9 @@ import {
     getFileByFolderIdAndFileId,
 } from '../db/queries/folderQueriesSelect';
 
-import type { cloudinaryFetchData } from '../types/cloudinaryRequiredData';
+import type { apiFetchData } from '../types/apiRequiredData';
 
-import CloudinaryAPI from '../api/CloudinaryAPI';
-
-const imageAPIProvider = new CloudinaryAPI();
+import type ImageAPI from '../api/ImageAPI';
 
 export async function controllerGetFolder(req: Request, res: Response) {
     const checkResults = await folderChecks(req);
@@ -129,7 +127,7 @@ export async function controllerGetDeleteFile(req: Request, res: Response) {
     return res.render('folder/delete-file', { folder, file, options });
 }
 
-export async function controllerGetFile(req: Request, res: Response) {
+export async function controllerGetFile(req: Request, res: Response, apiProvider: ImageAPI) {
     const checkResults = await fileActionsChecks(req, res);
 
     if (checkResults === false) {
@@ -140,22 +138,18 @@ export async function controllerGetFile(req: Request, res: Response) {
 
     const { folder, file } = checkResults;
 
-    const isPrivate = file.visibility.name === 'private';
-
-    const uploadType = isPrivate === true ? 'authenticated' : 'upload';
-
-    const fetchData: cloudinaryFetchData = {
+    const fetchData: apiFetchData = {
         username: req.user?.username,
         // @ts-ignore
         folderId: folder?.folderId,
         fileName: file.name,
-        uploadType,
+        fileVisibility: file.visibility.name,
     };
 
     let image;
 
     try {
-        image = await imageAPIProvider.fetch(fetchData);
+        image = await apiProvider.fetch(fetchData);
     } catch (error) {
         console.error(error);
         return renderError500(res);
@@ -167,7 +161,7 @@ export async function controllerGetFile(req: Request, res: Response) {
         folder,
         file,
         image,
-        isPublic: !isPrivate,
+        isPublic: file.visibility.name === 'public',
         baseUrl,
     });
 }

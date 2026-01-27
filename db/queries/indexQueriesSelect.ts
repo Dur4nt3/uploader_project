@@ -126,6 +126,16 @@ export async function getAllVisibilityOptions() {
     return options;
 }
 
+export async function getVisibility(visibilityId: number) {
+    const visibility = prisma.visibility.findUnique({
+        where: {
+            visibilityId
+        }
+    })
+
+    return visibility;
+}
+
 // ------------ SELECT QUERIES ------------
 
 // ------------ SELECT QUERIES (VALIDATION ONLY) ------------

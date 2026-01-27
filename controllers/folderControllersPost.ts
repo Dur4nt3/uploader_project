@@ -20,6 +20,7 @@ import {
     getAllVisibilityOptions,
     getFolderByUserIdAndFolderId,
     isVisibilityPrivate,
+    getVisibility
 } from '../db/queries/indexQueriesSelect';
 
 import {
@@ -31,14 +32,13 @@ import { updateFile } from '../db/queries/folderQueriesUpdate';
 import { deleteFile } from '../db/queries/folderQueriesDelete';
 
 import type {
-    cloudinaryUploadData,
-    cloudinaryEditData,
-    cloudinaryRemoveData,
-} from '../types/cloudinaryRequiredData';
+    apiFetchData,
+    apiUploadData,
+    apiEditData,
+    apiRemoveData,
+} from '../types/apiRequiredData';
 
-import CloudinaryAPI from '../api/CloudinaryAPI';
-
-const imageAPIProvider = new CloudinaryAPI();
+import type ImageAPI from '../api/ImageAPI';
 
 const multerStorage = multer.diskStorage({
     destination: 'uploads/',
@@ -52,7 +52,7 @@ const multerStorage = multer.diskStorage({
 
 const upload = multer({ storage: multerStorage });
 
-const controllerPostCreateFile: any = [
+const controllerPostCreateFile: any = (apiProvider: ImageAPI) => [
     upload.single('image'),
     validateFile,
     async (req: Request, res: Response) => {
@@ -123,24 +123,24 @@ const controllerPostCreateFile: any = [
 
         const { name, description, visibility } = matchedData(req);
 
-        const isPrivate = await isVisibilityPrivate(Number(visibility));
+        const visibilityInfo = await getVisibility(Number(visibility));
 
-        if (isPrivate === null) {
+        if (visibilityInfo === null) {
             return renderError500(res);
         }
 
-        const uploadData: cloudinaryUploadData = {
+        const uploadData: apiUploadData = {
             filePath: req.file.path,
             username: req.user.username,
             // @ts-ignore
             // Check is already done within folderChecks
             folderId: folder.folderId,
             fileName: req.body.name,
-            authenticated: isPrivate,
+            fileVisibility: visibilityInfo.name
         };
 
         try {
-            await imageAPIProvider.upload(uploadData);
+            await apiProvider.upload(uploadData);
             await removeAllUploads();
         } catch (error) {
             console.error(error);
@@ -198,7 +198,7 @@ async function fileActionsInitialChecks(req: Request, res: Response) {
     return { folder, file, options };
 }
 
-const controllerPostEditFile: any = [
+const controllerPostEditFile: any = (apiProvider: ImageAPI) => [
     validateFileEdit,
     async (req: Request, res: Response) => {
         const checkResults = await fileActionsInitialChecks(req, res);
@@ -236,30 +236,29 @@ const controllerPostEditFile: any = [
 
         const { name, description, visibility } = matchedData(req);
 
-        const currentlyPrivate = file.visibility.name === 'private';
-        const isPrivate = await isVisibilityPrivate(Number(visibility));
+        const visibilityInfo = await getVisibility(Number(visibility));
 
-        if (isPrivate === null || currentlyPrivate === null) {
+        if (visibilityInfo === null || file.visibility === undefined) {
             return renderError500(res);
         }
 
-        const editData: cloudinaryEditData = {
+        const editData: apiEditData = {
             // @ts-ignore
             username: req.user?.username,
             // @ts-ignore
             folderId: folder?.folderId,
             oldName: file.name,
             newName: name,
-            updatedType: isPrivate === true ? 'authenticated' : 'upload',
-            currentType: currentlyPrivate === true ? 'authenticated' : 'upload',
+            currentFileVisibility: file.visibility.name,
+            updatedFileVisibility: visibilityInfo.name,
         };
 
         if (
             name !== file.name ||
-            editData.updatedType !== editData.currentType
+            editData.updatedFileVisibility !== editData.currentFileVisibility
         ) {
             try {
-                await imageAPIProvider.edit(editData);
+                await apiProvider.edit(editData);
             } catch (error) {
                 console.error(error);
                 return renderError500(res);
@@ -283,7 +282,7 @@ const controllerPostEditFile: any = [
     },
 ];
 
-export async function controllerPostDeleteFile(req: Request, res: Response) {
+export async function controllerPostDeleteFile(req: Request, res: Response, apiProvider: ImageAPI) {
     const checkResults = await fileActionsInitialChecks(req, res);
 
     if (checkResults === false) {
@@ -292,19 +291,17 @@ export async function controllerPostDeleteFile(req: Request, res: Response) {
 
     const { folder, file } = checkResults;
 
-    const isPrivate = file.visibility.name === 'private';
-
-    const removeData: cloudinaryRemoveData = {
+    const removeData: apiRemoveData = {
         // @ts-ignore
         username: req.user?.username,
         // @ts-ignore
         folderId: folder?.folderId,
         fileName: file.name,
-        uploadType: isPrivate === true ? 'authenticated' : 'upload'
+        fileVisibility: file.visibility.name
     };
 
     try {
-        await imageAPIProvider.remove(removeData);
+        await apiProvider.remove(removeData);
     } catch (error) {
         console.error(error);
         return renderError500(res);
